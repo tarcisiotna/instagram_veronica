@@ -44,7 +44,45 @@ instagram_veronica/
 3. ✅ Pasta correta do tema
 4. ✅ Dimensões 1080x1350px
 
-### 7. 🔄 PROCESSO CORRETO
+### 7. 📁 NOVO ASSUNTO - REGRA DE PASTA
+1. **Criar pasta primeiro**: `slides/NOME-DO-TEMA/`
+2. **Atualizar modelo_instagram.py**: Alterar `output_file` para a nova pasta
+3. **Atualizar export_veronica_node.js**: Alterar paths para a nova pasta
+4. **Gerar e exportar**: Processo normal
+5. **Restaurar configs**: Após usar, restaurar para `reeducacao-alimentar/`
+
+### 8. 📝 LEGENDA - REGRA OBRIGATÓRIA
+
+**Após gerar, SEMPRE editar manualmente a `legenda.txt`**
+
+Formato obrigatório:
+```
+@veronicabomfim.nutri
+
+[TÍTULO DO CARROSSEL]
+
+📌 Descrição:
+[Adicionar descrição breve sobre o tema]
+
+📝 Resumo:
+• [Ponto 1 relevante]
+• [Ponto 2 relevante]
+• [Ponto 3 relevante]
+• [Ponto 4 relevante]
+
+📚 Fontes:
+[Adicionar fontes - ex: Ministério da Saúde, OMS, estudos científicos]
+
+🏷️ Hashtags:
+#[TEMA_PRINCIPAL] #nutrição #saúde #alimentação #[TAGS_RELEVANTES]
+
+📞 Contato:
+📱 (81) 9 9864-5846
+📧 veronicabomfim.nutri@gmail.com
+📸 @veronicabomfim.nutri
+```
+
+### 9. 🔄 PROCESSO CORRETO
 ```bash
 # 1. Gerar HTML
 python3 modelo_instagram.py "Título" "Subtítulo"
@@ -55,6 +93,12 @@ node export_veronica_node.js
 # 3. Verificar qualidade
 ls -lh slides/NOME-DO-TEMA/slide_1.png
 file slides/NOME-DO-TEMA/slide_1.png
+
+# 4. EDITAR LEGENDA - Obrigatório!
+# Editar slides/NOME-DO-TEMA/legenda.txt
+# Preencher: Descrição, Resumo (4 pontos), Fontes, Hashtags
+
+# 5. Postar no Instagram!
 ```
 
 **VIOLAÇÃO DESTAS REGRAS = SLIDES NÃO FUNCIONAM NO INSTAGRAM**

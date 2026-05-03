@@ -48,42 +48,16 @@ TOTAL_SLIDES = 7
 CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 
-# Profile images for Slide 1 - NANOBANANA (pasta prioritária)
+# Profile images for Slide 1 - NANOBANANA (pasta prioritária) - NOVAS FOTOS
 PROFILE_IMAGES = [
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/936f4681-434d-4d17-af25-6ccc34f8846a.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/08f51a8e-19df-415e-bbd0-d8e61192c9a7.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/2f8f305b-55fa-42c6-ab75-2b258509ad9c.jpeg",
     "/home/tarcisio/instagram_veronica/Imagens/nanobanana/7f6b31cf-bc56-42d5-9430-afc78d9b4534.jpeg",
     "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5caa0b8c-9fca-4b7d-8b58-fda5fa092f85.jpeg",
     "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5e3dd5f4-661b-4329-8496-92dc809e5c73.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/36acdd77-b1ad-430a-8b9b-a9222ced5882.jpeg",
     "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5f649b35-80b6-48a1-9d3f-cea879b5f42d.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/01ea02d4-f0c0-4ddb-933c-56ea1844f110.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/66e8703-e91e-4f65-8ec0-2e2c5cba8ce2.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/1fe663ea-662b-4c3e-87d5-b70889bc503f.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/f7e0579c-eb4d-41db-b9d8-8e10d1319556.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/6f693189-b802-405e-9224-2878df2795ab.jpeg",
 ]
-
-# Logo images (without background) for Slide 7
-LOGO_IMAGES = [
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/1.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/2.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/3.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/4.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/5.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/6.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/7.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/8.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/9.png",
-]
-
-# Rotate image for Slide 1
-state_file = Path("/home/tarcisio/instagram_veronica/.opencode/skills/instagram-carousel/last_image.txt")
-if state_file.exists():
-    last_idx = int(state_file.read_text().strip())
-    next_idx = (last_idx + 1) % len(PROFILE_IMAGES)
-else:
-    next_idx = 0
-state_file.write_text(str(next_idx))
-profile_img_path = PROFILE_IMAGES[next_idx]
 
 # Load image as base64
 def load_image_base64(image_path):
@@ -96,7 +70,28 @@ def load_image_base64(image_path):
     b64 = base64.b64encode(path.read_bytes()).decode()
     return f"data:{mime};base64,{b64}"
 
-profile_data_uri = load_image_base64(profile_img_path)
+# Carregar IMAGENS SEPARADAS para cada slide (slide 1 a slide 6 usa imagens diferentes)
+slide_images = []
+for img_path in PROFILE_IMAGES[:7]:  # Usar as primeiras 7 imagens
+    img_data = load_image_base64(img_path)
+    if img_data:
+        slide_images.append(img_data)
+
+# Usar primeira imagem como profile_img_data_uri (para slide 1)
+profile_data_uri = slide_images[0] if slide_images else None
+
+# Logo images for Slide 7
+LOGO_IMAGES = [
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/1.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/2.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/3.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/4.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/5.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/6.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/7.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/8.png",
+    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/9.png",
+]
 # Use first logo image (or rotate if you want)
 logo_data_uri = load_image_base64(LOGO_IMAGES[0])  # Using 1.png as logo
 
@@ -275,27 +270,27 @@ final_bg = f'<img src="{final_img_data_uri}" style="position:absolute;inset:0;wi
 final_overlay = ''  # Removido para slide 7 - deixar imagem final limpa
 
 # Logo image (without background) - with enhanced visual effects
-logo_img_tag = f'<img src="{logo_data_uri}" style="width:140px;height:auto;margin:0 auto 28px;filter:drop-shadow(0 6px 20px rgba(191,149,102,0.5));">' if logo_data_uri else f'<div style="width:80px;height:80px;border-radius:50%;background:{BRAND_PRIMARY};display:flex;align-items:center;justify-content:center;color:#fff;font-size:36px;font-weight:700;margin:0 auto 28px;box-shadow:0 6px 24px rgba(191,149,102,0.5);border:3px solid rgba(255,255,255,0.3);">V</div>'
+logo_img_tag = f'<img src="{logo_data_uri}" style="width:180px;height:auto;margin:0 auto 20px;filter:drop-shadow(0 8px 25px rgba(191,149,102,0.6));">' if logo_data_uri else f'<div style="width:100px;height:100px;border-radius:50%;background:{BRAND_PRIMARY};display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px;font-weight:700;margin:0 auto 20px;box-shadow:0 8px 30px rgba(191,149,102,0.6);border:4px solid rgba(255,255,255,0.4);">V</div>'
 
 slides.append(f'''
 <div class="slide" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 36px;overflow:hidden;position:relative;">
   {final_bg}
   {final_overlay}
-  <div style="position:relative;z-index:2;text-align:center;width:100%;">
+  <div style="position:relative;z-index:2;text-align:center;width:100%;margin-top:0px;">
     <!-- Bronze accent bar -->
-    <div style="width:60px;height:4px;background:{BRAND_PRIMARY};margin:0 auto 16px;border-radius:2px;"></div>
+    <div style="width:60px;height:4px;background:{BRAND_PRIMARY};margin:0 auto 8px;border-radius:2px;"></div>
     
     <!-- Logo (without background) -->
     {logo_img_tag}
     
     <!-- Headline -->
-    <h2 style="font-family:'{FONT_HEADING}',serif;font-size:34px;font-weight:600;color:#fff;line-height:1.2;margin:0 0 12px 0;">Pronto para cuidar da sua saúde?</h2>
+    <h2 style="font-family:'{FONT_HEADING}',serif;font-size:34px;font-weight:600;color:#fff;line-height:1.2;margin:-20px 0 12px 0;">Pronto para cuidar da sua saúde?</h2>
     
     <!-- Subtitle (centered, larger font) -->
     <p style="font-family:'{FONT_BODY}',sans-serif;font-size:19px;font-weight:500;color:rgba(255,255,255,0.95);line-height:1.5;margin:0 0 28px 0;max-width:340px;text-align:center;">Agenda sua consulta</p>
     
-    <!-- CTA Button (larger font) -->
-    <div style="display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:{BRAND_PRIMARY};color:#fff;font-family:'{FONT_BODY}',sans-serif;font-weight:700;font-size:16px;border-radius:28px;cursor:pointer;box-shadow:0 4px 16px rgba(191,149,102,0.3);margin-bottom:20px;">Agendar agora</div>
+<!-- CTA Button (larger font) -->
+<div style="display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:{BRAND_PRIMARY};color:#fff;font-family:'{FONT_BODY}',sans-serif;font-weight:700;font-size:16px;border-radius:28px;cursor:pointer;box-shadow:0 4px 16px rgba(191,149,102,0.3);margin-bottom:20px;">Agendar agora</div>
     
     <!-- Contact Info (white text with shadow for better visibility) -->
     <div style="margin-bottom:6px;">
@@ -306,17 +301,17 @@ slides.append(f'''
       <span style="font-family:'{FONT_BODY}',sans-serif;font-size:15px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.5);">{INSTA_HANDLE}</span>
     </div>
     
-    <!-- Contact Details (official icons) -->
-    <div style="font-size:15px;color:#fff;font-family:'{FONT_BODY}',sans-serif;line-height:1.8;font-weight:500;text-shadow:0 2px 6px rgba(0,0,0,0.5);display:flex;flex-direction:column;gap:6px;align-items:center;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-1.5 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-1.5-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.91.36 1.81.72 2.74a21.94 21.94 0 0 0 .73 6.56 21.72 21.72 0 0 0 6.56.73c.93.36 1.83.59 2.74.72A2 2 0 0 1 22 16.92z"/></svg>
-        <span>{CONTACT_PHONE}</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <span>{CONTACT_EMAIL}</span>
-      </div>
-    </div>
+<!-- Contact Details (official icons) -->
+<div style="font-size:15px;color:#fff;font-family:'{FONT_BODY}',sans-serif;line-height:1.8;font-weight:500;text-shadow:0 2px 6px rgba(0,0,0,0.5);display:flex;flex-direction:column;gap:6px;align-items:center;">
+<div style="display:flex;align-items:center;gap:8px;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-1.5 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-1.5-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.91.36 1.81.72 2.74a21.94 21.94 0 0 0 .73 6.56 21.72 21.72 0 0 0 6.56.73c.93.36 1.83.59 2.74.72A2 2 0 0 1 22 16.92z"/></svg>
+<span>{CONTACT_PHONE}</span>
+</div>
+<div style="display:flex;align-items:center;gap:8px;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+<span>{CONTACT_EMAIL}</span>
+</div>
+</div>
   </div>
 </div>
 ''')
@@ -334,8 +329,8 @@ html = f'''<!DOCTYPE html>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@300;400;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <style>
-    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+<style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
     body {{ font-family: '{FONT_BODY}', sans-serif; background: #0F1A0F; padding: 20px; display: flex; justify-content: center; }}
     .ig-frame {{ width: 420px; max-width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000; }}
     .ig-header {{ display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: {DARK_BG}; color: #fff; }}
@@ -415,33 +410,33 @@ slides_dir = Path(output_file).parent
 slides_dir.mkdir(exist_ok=True)
 
 # Gerar arquivo de legenda para Instagram (salvo na pasta do tema)
+# IMPORTANTE: Editar manualmente após gerar - preencher os campos entre []
 legenda = f"""{INSTA_HANDLE}
 
 {hook}
 
 📌 Descrição:
-Canetas emagrecedoras têm revolucionado o tratamento da obesidade. Porém, seu uso exige acompanhamento profissional especializado e não substitui hábitos saudáveis de alimentação.
+[Adicione uma descrição breve sobre o tema do carrossel]
 
 📝 Resumo:
-• Canetas são ferramentas, não milagres isolados - exigem prescrição médica
-• Benefícios reais: controle do apetite, saciedade prolongada e auxílio na manutenção do peso
-• Segurança: uso apenas com prescrição médica, acompanhamento nutricional e alimentação equilibrada
-• 3 etapas: consulta médica para avaliação, acompanhamento nutricional com plano alimentar, monitoramento contínuo
+• [Ponto 1 relevante sobre o tema]
+• [Ponto 2 relevante sobre o tema]  
+• [Ponto 3 relevante sobre o tema]
+• [Ponto 4 relevante sobre o tema]
 
 📚 Fontes:
-SBNO - Sociedade Brasileira de Nutrição Oncológica
-Ministério da Saúde - ANS
+[Adicione fontes ou referências - ex: Ministério da Saúde, OMS, estudos científicos]
 
 🏷️ Hashtags:
-#canetasemagrecedoras #obesidade #saudável #dicas #veronicabomfim #nutricionista #saude #bemestar #emagrecimento #acompanhamentonutricional #medicacaoinjetavel
+#[TEMA_PRINCIPAL] #nutrição #saúde #alimentação #veronicabomfim #nutricionista #bemestar #[TAGS_ADICIONAIS]
 
 📞 Contato:
 📱 {CONTACT_PHONE}
 📧 {CONTACT_EMAIL}
-{INSTA_HANDLE}"""
+📸 {INSTA_HANDLE}"""
 
 slides_dir.joinpath("legenda.txt").write_text(legenda, encoding="utf-8")
 
 print(f"Carrossel criado: {output_file}")
 print(f"Legenda criada: {slides_dir / 'legenda.txt'}")
-print(f"Imagem de perfil utilizada: {profile_img_path}")
+print(f"Imagens carregadas: {len(slide_images)}")
