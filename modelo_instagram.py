@@ -3,6 +3,20 @@ from pathlib import Path
 import sys
 
 # ============================================
+# VALIDAÇÃO DAS REGRAS - NÃO VIOLAR!
+# ============================================
+# Verificar se está usando imagens de alta qualidade
+for img_path in [
+    "/home/tarcisio/instagram_veronica/Imagens/foto1.jpeg",
+]:
+    if Path(img_path).exists():
+        size_mb = Path(img_path).stat().st_size / 1024 / 1024
+        if size_mb < 1:
+            print(f"⚠️  REGRA VIOLADA: {img_path} tem apenas {size_mb:.1f}MB!")
+            print("   Use apenas imagens >7MB: 0AVA3114.jpg, 0AVA3115.jpg, etc.")
+            sys.exit(1)
+
+# ============================================
 # REGRA PADRÃO PARA TODOS OS CARROSSÉIS
 # ============================================
 # 1. Slide 7 (CTA): Usar logotipo sem fundo da pasta "Imagens/Sem fundo/"
@@ -34,9 +48,8 @@ TOTAL_SLIDES = 7
 CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 
-# Profile images for Slide 1
+# Profile images for Slide 1 - USAR SEMPRE AS MAIORES PRIMEIRO
 PROFILE_IMAGES = [
-    "/home/tarcisio/instagram_veronica/Imagens/foto1.jpeg",
     "/home/tarcisio/instagram_veronica/Imagens/0AVA3114.jpg",
     "/home/tarcisio/instagram_veronica/Imagens/0AVA3115.jpg",
     "/home/tarcisio/instagram_veronica/Imagens/0AVA3120.jpg",
@@ -111,8 +124,8 @@ def swipe_arrow(is_light):
 </div>'''
 
 # Get topic from command line or use default
-topic = sys.argv[1] if len(sys.argv) > 1 else "nutrição e alimentação saudável"
-hook = sys.argv[2] if len(sys.argv) > 2 else "7 hábitos para transformar sua alimentação"
+topic = sys.argv[1] if len(sys.argv) > 1 else "Reeducação alimentar passo a passo"
+hook = sys.argv[2] if len(sys.argv) > 2 else "7 passos para transformar sua relação com a comida"
 
 # Slide 1 - Hook with profile image background
 slide1_img = ""
@@ -126,9 +139,9 @@ slides.append(f'''
 <div class="slide" style="background:{LIGHT_BG};display:flex;flex-direction:column;justify-content:center;padding:0 36px;overflow:hidden;position:relative;">
   {slide1_img}
   <div style="position:relative;z-index:2;">
-    <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:#fff;margin-bottom:16px;">CANETAS EMAGRECEDORAS</span>
+    <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:#fff;margin-bottom:16px;">REEDUCAÇÃO ALIMENTAR</span>
     <h1 style="font-family:'{FONT_HEADING}',serif;font-size:32px;font-weight:700;color:#fff;line-height:1.1;margin:0 0 16px 0;">{hook}</h1>
-    <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.5;margin:0 0 24px 0;">Mitos e verdades sobre medicação injetável para emagrecimento</p>
+    <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.5;margin:0 0 24px 0;">Guia prático baseado no Ministério da Saúde</p>
     <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
       <div style="width:40px;height:40px;border-radius:50%;background:{BRAND_PRIMARY};display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;">V</div>
       <div>
@@ -147,10 +160,10 @@ slides.append(f'''
 <div class="slide" style="background:{DARK_BG};display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 52px;overflow:hidden;">
   <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_LIGHT};margin-bottom:16px;">MITOS COMUNS</span>
   <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 14px 0;">O que você ouviu não é verdade</h2>
-  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.5;margin:0 0 12px 0;">Muitos pacientes chegam com informações erradas sobre canetas imagensedoras de nutricionistas.</p>
+  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.5;margin:0 0 12px 0;">Muitos pacientes acreditam que dietas restritivas são o único caminho.</p>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Emagrece sem dieta</span>
-    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Funciona para todos</span>
+    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Dieta restritiva funciona</span>
+    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Preciso cortar carboidratos</span>
   </div>
   {progress_bar(1, TOTAL_SLIDES, False)}
   {swipe_arrow(False)}
@@ -161,12 +174,12 @@ slides.append(f'''
 slides.append(f'''
 <div class="slide" style="background:linear-gradient(165deg, {BRAND_DARK} 0%, {BRAND_PRIMARY} 50%, {BRAND_LIGHT} 100%);display:flex;flex-direction:column;justify-content:center;padding:0 36px;overflow:hidden;">
   <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,0.8);margin-bottom:16px;">A VERDADE</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:30px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 20px 0;">Acompanhamento profissional é essencial</h2>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:30px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 20px 0;">Pequenas mudanças, grandes resultados</h2>
   <div style="padding:20px;background:rgba(0,0,0,0.25);border-radius:12px;border:1px solid rgba(255,255,255,0.15);margin-bottom:16px;">
     <p style="font-family:'{FONT_BODY}',sans-serif;font-size:13px;color:rgba(255,255,255,0.7);margin:0 0 8px 0;">Dica</p>
-    <p style="font-family:'{FONT_HEADING}',serif;font-size:16px;color:#fff;font-style:italic;line-height:1.5;margin:0;">"Canetas são ferramentas, não milagres isolados"</p>
+    <p style="font-family:'{FONT_HEADING}',serif;font-size:16px;color:#fff;font-style:italic;line-height:1.5;margin:0;">"Pequenas mudanças diárias geram resultados sustentáveis"</p>
   </div>
-  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin:0;font-weight:600;">Prescrição médica + nutrição = resultado real.</p>
+  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin:0;font-weight:600;">Guia Alimentar + acompanhamento = transformação real.</p>
   {progress_bar(2, TOTAL_SLIDES, False)}
   {swipe_arrow(False)}
 </div>
@@ -176,19 +189,19 @@ slides.append(f'''
 slides.append(f'''
 <div class="slide" style="background:{LIGHT_BG};display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 52px;overflow:hidden;">
   <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_PRIMARY};margin-bottom:16px;">BENEFÍCIOS REAIS</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#1e293b;line-height:1.15;margin:0 0 18px 0;">Como as canetas ajudam</h2>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#1e293b;line-height:1.15;margin:0 0 18px 0;">O que você conquista</h2>
   <div style="display:flex;flex-direction:column;gap:0;">
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="color:{BRAND_PRIMARY};font-size:15px;width:18px;text-align:center;flex-shrink:0;">✦</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Controle do apetite</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Reduz sinais de fome</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Saciedade real</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Sem fome constante</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="color:{BRAND_PRIMARY};font-size:15px;width:18px;text-align:center;flex-shrink:0;">✦</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Saciedade prolongada</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Menos ansiedade alimentar</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Mais energia</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Disposição no dia a dia</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;">
       <span style="color:{BRAND_PRIMARY};font-size:15px;width:18px;text-align:center;flex-shrink:0;">✦</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Auxílio na recidiva</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Mantém peso a longo prazo</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Relação saudável</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Prazer em comer bem</span></div>
     </div>
   </div>
   {progress_bar(3, TOTAL_SLIDES, True)}
@@ -199,20 +212,20 @@ slides.append(f'''
 # Slide 5 - Details (Safety)
 slides.append(f'''
 <div class="slide" style="background:{DARK_BG};display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 52px;overflow:hidden;">
-  <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_LIGHT};margin-bottom:16px;">SEGURANÇA</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 14px 0;">Cuidados essenciais</h2>
+  <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_LIGHT};margin-bottom:16px;">PRINCÍPIOS</span>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 14px 0;">Pilares da reeducação</h2>
   <div style="display:flex;flex-direction:column;gap:10px;">
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
-      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">⚕</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Prescrição médica</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Nunca use sem indicação</span></div>
+      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">🥗</span>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Comer com prazer</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Sem culpa ou restrição</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
-      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">🩺</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Acompanhamento</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Monitoramento regular</span></div>
+      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">⏰</span>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Regularidade</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Horários consistentes</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;">
-      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">🥗</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Alimentação equilibrada</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Nutrição é fundamental</span></div>
+      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">🩺</span>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Acompanhamento</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Nutricionista é essencial</span></div>
     </div>
   </div>
   {progress_bar(4, TOTAL_SLIDES, False)}
@@ -228,15 +241,15 @@ slides.append(f'''
   <div style="display:flex;flex-direction:column;gap:0;">
     <div style="display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="font-family:'{FONT_HEADING}',serif;font-size:26px;font-weight:300;color:{BRAND_PRIMARY};min-width:34px;line-height:1;flex-shrink:0;">01</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Consulta médica</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Avaliação e prescrição</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Avaliação nutricional</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Entenda seus hábitos atuais</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="font-family:'{FONT_HEADING}',serif;font-size:26px;font-weight:300;color:{BRAND_PRIMARY};min-width:34px;line-height:1;flex-shrink:0;">02</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Acompanhamento nutricional</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Plano alimentar personalizado</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Plano personalizado</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Pequenas mudanças graduais</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:16px;padding:14px 0;">
       <span style="font-family:'{FONT_HEADING}',serif;font-size:26px;font-weight:300;color:{BRAND_PRIMARY};min-width:34px;line-height:1;flex-shrink:0;">03</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Monitoramento contínuo</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Ajustes conforme evolução</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Acompanhamento contínuo</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Ajustes conforme evolução</span></div>
     </div>
   </div>
   {progress_bar(5, TOTAL_SLIDES, True)}
@@ -390,7 +403,7 @@ html = f'''<!DOCTYPE html>
 </html>
 '''
 
-output_file = "/home/tarcisio/instagram_veronica/carousel_veronica.html"
+output_file = "/home/tarcisio/instagram_veronica/slides/reeducacao-alimentar/carousel.html"
 Path(output_file).write_text(html, encoding="utf-8")
 
 # Criar pasta slides se não existir
