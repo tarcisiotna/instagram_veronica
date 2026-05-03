@@ -22,7 +22,7 @@
 ### 4. 🖼️ IMAGENS DE PERFIL
 - **PRIORIDADE**: Usar pasta `Imagens/nanobanana/` (tamanho menor ~80KB por imagem)
 - **QUALIDADE**: Imagens embedadas em alta qualidade no HTML
-- **TAMANHO MÍNIMO HTML**: 3MB (para garantir qualidade suficiente)
+- **TAMANHO MÍNIMO HTML**: 2.5MB (para garantir qualidade suficiente)
 
 ### 5. 📁 ESTRUTURA DE PASTAS
 ```

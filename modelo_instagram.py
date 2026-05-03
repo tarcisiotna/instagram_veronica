@@ -26,7 +26,7 @@ for img_path in [
 # 5. Slide 7: Fontes maiores (18px nome, 15px contatos, 15px botão)
 # 6. Cores seguindo Guia da marca.md: #bf9566 (bronze), #ecd7ba, #FAF9F7, #394233
 # 7. Tipografia: Playfair Display (títulos) + TT Norms (textos)
-# 8. Legenda: Gerar slides/legenda.txt com descrição, resumo, fontes, hashtags, contato
+# 8. Legenda: Gerar NA PASTA DO TEMA (não em slides/raiz)
 # 9. Slides exportados: usar device_scale_factor (420px → 1080px)
 # 10. Nunca usar "Dica da especialista" - usar apenas "Dica"
 # 11. Slide 7: Usar apenas "Agende sua consulta" - nunca "com a especialista"
@@ -410,11 +410,11 @@ html = f'''<!DOCTYPE html>
 output_file = "/home/tarcisio/instagram_veronica/slides/reeducacao-alimentar/carousel.html"
 Path(output_file).write_text(html, encoding="utf-8")
 
-# Criar pasta slides se não existir
-slides_dir = Path("/home/tarcisio/instagram_veronica/slides")
+# Criar pasta do tema baseada no output_file
+slides_dir = Path(output_file).parent
 slides_dir.mkdir(exist_ok=True)
 
-# Gerar arquivo de legenda para Instagram (salvo na pasta slides)
+# Gerar arquivo de legenda para Instagram (salvo na pasta do tema)
 legenda = f"""{INSTA_HANDLE}
 
 {hook}
@@ -443,5 +443,5 @@ Ministério da Saúde - ANS
 slides_dir.joinpath("legenda.txt").write_text(legenda, encoding="utf-8")
 
 print(f"Carrossel criado: {output_file}")
-print(f"Legenda criada: /home/tarcisio/instagram_veronica/slides/legenda.txt")
+print(f"Legenda criada: {slides_dir / 'legenda.txt'}")
 print(f"Imagem de perfil utilizada: {profile_img_path}")
