@@ -48,14 +48,18 @@ TOTAL_SLIDES = 7
 CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 
-# Profile images for Slide 1 - USAR SEMPRE AS MAIORES PRIMEIRO
+# Profile images for Slide 1 - NANOBANANA (pasta prioritária)
 PROFILE_IMAGES = [
-    "/home/tarcisio/instagram_veronica/Imagens/0AVA3114.jpg",
-    "/home/tarcisio/instagram_veronica/Imagens/0AVA3115.jpg",
-    "/home/tarcisio/instagram_veronica/Imagens/0AVA3120.jpg",
-    "/home/tarcisio/instagram_veronica/Imagens/0AVA3125.jpg",
-    "/home/tarcisio/instagram_veronica/Imagens/0AVA3129.jpg",
-    "/home/tarcisio/instagram_veronica/Imagens/0AVA3131.jpg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/7f6b31cf-bc56-42d5-9430-afc78d9b4534.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5caa0b8c-9fca-4b7d-8b58-fda5fa092f85.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5e3dd5f4-661b-4329-8496-92dc809e5c73.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/36acdd77-b1ad-430a-8b9b-a9222ced5882.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5f649b35-80b6-48a1-9d3f-cea879b5f42d.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/01ea02d4-f0c0-4ddb-933c-56ea1844f110.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/66e8703-e91e-4f65-8ec0-2e2c5cba8ce2.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/1fe663ea-662b-4c3e-87d5-b70889bc503f.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/f7e0579c-eb4d-41db-b9d8-8e10d1319556.jpeg",
+    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/6f693189-b802-405e-9224-2878df2795ab.jpeg",
 ]
 
 # Logo images (without background) for Slide 7

@@ -23,7 +23,7 @@ def verificar_regras(pasta_slides):
         return False
     
     html_size_mb = html_path.stat().st_size / 1024 / 1024
-    if html_size_mb < 18:
+    if html_size_mb < 3:  # nanobanana tem imagens menores (57KB-128KB)
         print(f"❌ VIOLAÇÃO: carousel.html tem apenas {html_size_mb:.1f}MB")
         print("   Deve ter >18MB (imagens embedadas em alta qualidade)")
         return False

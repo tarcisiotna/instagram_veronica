@@ -6,7 +6,7 @@
 - **SCRIPT**: Usar APENAS `modelo_instagram.py` (baseado em `create_veronica_carousel.py`)
 - **NOME DO ARQUIVO**: Gerar SEMPRE como `carousel.html` (nunca `carousel_veronica.html`)
 - **DIMENSÕES**: Manter HTML em 420px de largura (export scale para 1080px)
-- **IMAGENS**: Excluir `foto1.jpeg` da lista de profile images (só usar imagens >7MB)
+- **IMAGENS**: Usar pasta `Imagens/nanobanana/` (prioritária)
 
 ### 2. 📸 EXPORT DOS SLIDES  
 - **SCRIPT**: Usar APENAS `export_veronica_node.js` (scale factor 2.5714)
@@ -16,19 +16,13 @@
 
 ### 3. 📏 DIMENSÕES FINAIS
 - **RESOLUÇÃO**: 1080x1350px (proporção 4:5 do Instagram)
-- **TAMANHO MÍNIMO**: Slide 1 deve ter ≈1.7-1.8MB (HTML ≈20MB)
+- **TAMANHO MÍNIMO**: HTML >3MB (imagens nanobanana são menores)
 - **VERIFICAÇÃO**: Sempre checar `file slide_1.png` = "PNG image data, 1080 x 1350"
 
 ### 4. 🖼️ IMAGENS DE PERFIL
-- **QUALIDADE**: Usar APENAS imagens >7MB da pasta `Imagens/`
-- **EXCLUIR**: Nunca usar `foto1.jpeg` (apenas 81KB)
-- **LISTA PERMITIDA**: 
-  - `0AVA3114.jpg` (7.1MB)
-  - `0AVA3115.jpg` (7.2MB) 
-  - `0AVA3120.jpg` (9.8MB)
-  - `0AVA3125.jpg` (12.9MB)
-  - `0AVA3129.jpg` (12.3MB)
-  - `0AVA3131.jpg` (10.9MB)
+- **PRIORIDADE**: Usar pasta `Imagens/nanobanana/` (tamanho menor ~80KB por imagem)
+- **QUALIDADE**: Imagens embedadas em alta qualidade no HTML
+- **TAMANHO MÍNIMO HTML**: 3MB (para garantir qualidade suficiente)
 
 ### 5. 📁 ESTRUTURA DE PASTAS
 ```
@@ -45,11 +39,10 @@ instagram_veronica/
 ```
 
 ### 6. ⚠️ VERIFICAÇÕES OBRIGATÓRIAS
-1. ✅ HTML > 18MB (imagens embedadas em alta qualidade)
-2. ✅ Slide 1 > 1.7MB (alta resolução)
-3. ✅ Dimensões 1080x1350px
-4. ✅ Nomes com underscore (`slide_1.png`)
-5. ✅ Pasta correta do tema
+1. ✅ HTML > 3MB (imagens nanobanana são menores)
+2. ✅ Nomes com underscore (`slide_1.png`)
+3. ✅ Pasta correta do tema
+4. ✅ Dimensões 1080x1350px
 
 ### 7. 🔄 PROCESSO CORRETO
 ```bash
