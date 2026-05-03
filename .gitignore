@@ -1,0 +1,26 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Slides/HTML exports (arquivos grandes)
+*.html
+slides/
+slides_veronica/
+Imagens/
+Documento/
+
+# Ambiente
+.env
+.opencode/
+
+# OS
+.DS_Store
+Thumbs.db
