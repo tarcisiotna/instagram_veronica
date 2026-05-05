@@ -11,9 +11,10 @@ node_modules/
 package-lock.json
 
 # Slides/HTML exports (arquivos grandes)
-*.html
-slides/
+# *.html - Removido para permitir versionar carousel.html
+# slides/ - Removido para permitir versionar slides
 slides_veronica/
+# Imagens/ - Mantido ignorado (arquivos muito grandes)
 Imagens/
 Documento/
 
