@@ -10,11 +10,11 @@ __pycache__/
 node_modules/
 package-lock.json
 
-# Slides/HTML exports (arquivos grandes)
-# *.html - Removido para permitir versionar carousel.html
-# slides/ - Removido para permitir versionar slides
+# Slides/HTML exports - apenas código, não imágenes
+slides/*/
+!slides/*/*.html    # Carousel HTML
+!slides/*/*.txt     # Legenda
 slides_veronica/
-# Imagens/ - Mantido ignorado (arquivos muito grandes)
 Imagens/
 Documento/
 
