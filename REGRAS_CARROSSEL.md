@@ -89,8 +89,8 @@ Formato obrigatório:
 - **POSIÇÃO**: Sempre como slide final (após todos os conteúdos)
 - **IDENTIDADE VISUAL**: Aplicar identidade visual da marca:
   - Gradiente verde na base (#394233)
-  - Divisor dourado (#bf9566) ao final da imagem
   - Imagem posicionada para mostrar o rosto (object-position: 50% 55%)
+  - **SEM divisor dourado** (barra #bf9566 removida para visual mais limpo)
 - **NUNCA ESQUECER**: Esta regra NÃO pode ser violada
 
 ### 10. 🔄 PROCESSO CORRETO

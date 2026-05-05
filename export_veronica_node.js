@@ -2,9 +2,8 @@ const playwright = require('playwright');
 const fs = require('fs').promises;
 const path = require('path');
 
-const INPUT_HTML = "/home/tarcisio/instagram_veronica/slides/reeducacao-alimentar/carousel.html";
-const OUTPUT_DIR = "/home/tarcisio/instagram_veronica/slides/reeducacao-alimentar";
-const TOTAL_SLIDES = 7;
+const INPUT_HTML = process.argv[2] || "/home/tarcisio/instagram_veronica/slides/reeducacao-alimentar/carousel.html";
+const OUTPUT_DIR = process.argv[3] || path.dirname(INPUT_HTML);
 const VIEW_W = 420;
 const VIEW_H = 525;
 const SCALE = 1080 / 420;  // = 2.5714...
@@ -19,6 +18,12 @@ async function exportSlides() {
     const htmlContent = await fs.readFile(INPUT_HTML, 'utf-8');
     await page.setContent(htmlContent, { waitUntil: 'networkidle' });
     await page.waitForTimeout(3000);  // Wait for Google Fonts to load
+
+    // Count total slides
+    const TOTAL_SLIDES = await page.evaluate(() => {
+        return document.querySelectorAll('.carousel-track .slide').length;
+    });
+    console.log(`Found ${TOTAL_SLIDES} slides`);
 
     // Hide IG frame chrome, show only the slide viewport
     await page.evaluate(() => {

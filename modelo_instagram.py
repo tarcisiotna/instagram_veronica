@@ -31,6 +31,7 @@ for img_path in [
 # 10. Nunca usar "Dica da especialista" - usar apenas "Dica"
 # 11. Slide 7: Usar apenas "Agende sua consulta" - nunca "com a especialista"
 # 12. Slide 1: Usar logotipo sem fundo da pasta "Imagens/Sem fundo/" (igual ao Slide 7)
+# 13. Slide 7 (CTA): NÃO incluir divisor dourado (#bf9566) - visual mais limpo
 # ============================================
 
 # Brand: Verônica Bomfim de Lima - seguindo Guia da marca.md
@@ -256,62 +257,28 @@ slides.append(f'''
 </div>
 ''')
 
-# Slide 7 - CTA with contact info and final image
-final_img_path = "/home/tarcisio/instagram_veronica/Imagens/slide_final.png"
-final_img_data_uri = None
-if Path(final_img_path).exists():
-    mime = "image/jpeg"
-    if Path(final_img_path).suffix.lower() == ".png":
-        mime = "image/png"
-    b64 = base64.b64encode(Path(final_img_path).read_bytes()).decode()
-    final_img_data_uri = f"data:{mime};base64,{b64}"
-
-final_bg = f'<img src="{final_img_data_uri}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">' if final_img_data_uri else f'<div style="position:absolute;inset:0;background:linear-gradient(165deg, {BRAND_DARK} 0%, {BRAND_PRIMARY} 50%, {BRAND_LIGHT} 100%);z-index:0;"></div>'
-final_overlay = ''  # Removido para slide 7 - deixar imagem final limpa
+# Slide 7 - CTA using CTA.png (new standard format)
+cta_img_path = "/home/tarcisio/instagram_veronica/Imagens/CTA/CTA.png"
+cta_img_data_uri = None
+if Path(cta_img_path).exists():
+    b64 = base64.b64encode(Path(cta_img_path).read_bytes()).decode()
+    cta_img_data_uri = f"data:image/png;base64,{b64}"
+    print(f"✅ CTA image loaded: {len(b64)} chars")
+else:
+    print("⚠️  CTA.png not found, using fallback gradient")
 
 # Logo image (without background) - with enhanced visual effects
 logo_img_tag = f'<img src="{logo_data_uri}" style="width:180px;height:auto;margin:0 auto 20px;filter:drop-shadow(0 8px 25px rgba(191,149,102,0.6));">' if logo_data_uri else f'<div style="width:100px;height:100px;border-radius:50%;background:{BRAND_PRIMARY};display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px;font-weight:700;margin:0 auto 20px;box-shadow:0 8px 30px rgba(191,149,102,0.6);border:4px solid rgba(255,255,255,0.4);">V</div>'
 
 slides.append(f'''
-<div class="slide" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 36px;overflow:hidden;position:relative;">
-  {final_bg}
-  {final_overlay}
-  <div style="position:relative;z-index:2;text-align:center;width:100%;margin-top:0px;">
-    <!-- Bronze accent bar -->
-    <div style="width:60px;height:4px;background:{BRAND_PRIMARY};margin:0 auto 8px;border-radius:2px;"></div>
-    
-    <!-- Logo (without background) -->
-    {logo_img_tag}
-    
-    <!-- Headline -->
-    <h2 style="font-family:'{FONT_HEADING}',serif;font-size:34px;font-weight:600;color:#fff;line-height:1.2;margin:-20px 0 12px 0;">Pronto para cuidar da sua saúde?</h2>
-    
-    <!-- Subtitle (centered, larger font) -->
-    <p style="font-family:'{FONT_BODY}',sans-serif;font-size:19px;font-weight:500;color:rgba(255,255,255,0.95);line-height:1.5;margin:0 0 28px 0;max-width:340px;text-align:center;">Agenda sua consulta</p>
-    
-<!-- CTA Button (larger font) -->
-<div style="display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:{BRAND_PRIMARY};color:#fff;font-family:'{FONT_BODY}',sans-serif;font-weight:700;font-size:16px;border-radius:28px;cursor:pointer;box-shadow:0 4px 16px rgba(191,149,102,0.3);margin-bottom:20px;">Agendar agora</div>
-    
-    <!-- Contact Info (white text with shadow for better visibility) -->
-    <div style="margin-bottom:6px;">
-      <span style="font-family:'{FONT_BODY}',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.3px;text-shadow:0 2px 8px rgba(0,0,0,0.6);">{BRAND_NAME}</span>
-    </div>
-    <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;justify-content:center;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4.05 0 0 1 15.23 13 4 4 0 0 1 12 14a4 4 0 0 1-3.23-1 4 4 0 0 1-1.78-2.63 4 4 0 0 1 .77-3.23 4 4 0 0 1 2.46-.98 4 4 0 0 1 3.23 1 4 4 0 0 1 .98 2.46 4 4 0 0 1-1.77 3.23z"/></svg>
-      <span style="font-family:'{FONT_BODY}',sans-serif;font-size:15px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.5);">{INSTA_HANDLE}</span>
-    </div>
-    
-<!-- Contact Details (official icons) -->
-<div style="font-size:15px;color:#fff;font-family:'{FONT_BODY}',sans-serif;line-height:1.8;font-weight:500;text-shadow:0 2px 6px rgba(0,0,0,0.5);display:flex;flex-direction:column;gap:6px;align-items:center;">
-<div style="display:flex;align-items:center;gap:8px;">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-1.5 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-1.5-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.91.36 1.81.72 2.74a21.94 21.94 0 0 0 .73 6.56 21.72 21.72 0 0 0 6.56.73c.93.36 1.83.59 2.74.72A2 2 0 0 1 22 16.92z"/></svg>
-<span>{CONTACT_PHONE}</span>
-</div>
-<div style="display:flex;align-items:center;gap:8px;">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-<span>{CONTACT_EMAIL}</span>
-</div>
-</div>
+<div class="slide" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0;overflow:hidden;position:relative;">
+  <img src="{cta_img_data_uri}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+  
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:30px 20px;background:linear-gradient(to top,rgba(57,66,51,0.95),rgba(57,66,51,0.7),transparent);text-align:center;">
+  </div>
+  <div class="progress-bar" style="background:transparent;">
+    <div class="progress-track"><div class="progress-fill" style="width:100%;"></div></div>
+    <span class="progress-label">{TOTAL_SLIDES}/{TOTAL_SLIDES}</span>
   </div>
 </div>
 ''')
