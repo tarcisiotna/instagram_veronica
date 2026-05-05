@@ -15,7 +15,25 @@ async function exportSlides() {
         deviceScaleFactor: SCALE,
     });
 
-    const htmlContent = await fs.readFile(INPUT_HTML, 'utf-8');
+    let htmlContent = await fs.readFile(INPUT_HTML, 'utf-8');
+    
+    // Embed all slide images as base64
+    const htmlDir = path.dirname(INPUT_HTML);
+    for (let slideNum = 1; slideNum <= 8; slideNum++) {
+        const imgPath = path.join(htmlDir, `slide_${slideNum}.png`);
+        try {
+            const imgData = await fs.readFile(imgPath);
+            const base64 = imgData.toString('base64');
+            const mimeType = 'image/png';
+            htmlContent = htmlContent.replace(
+                `src="slide_${slideNum}.png"`,
+                `src="data:${mimeType};base64,${base64}"`
+            );
+        } catch (e) {
+            // Slide image not found, skip
+        }
+    }
+    
     await page.setContent(htmlContent, { waitUntil: 'networkidle' });
     await page.waitForTimeout(3000);  // Wait for Google Fonts to load
 
@@ -45,6 +63,21 @@ async function exportSlides() {
             const track = document.querySelector('.carousel-track');
             track.style.transition = 'none';
             track.style.transform = 'translateX(' + (-idx * 420) + 'px)';
+            
+            // Add progress bar to all slides
+            const slides = document.querySelectorAll('.carousel-track .slide');
+            slides.forEach((slide, slideIdx) => {
+                let bar = slide.querySelector('.progress-bar');
+                if (!bar) {
+                    bar = document.createElement('div');
+                    bar.className = 'progress-bar';
+                    bar.style.cssText = 'position:absolute;bottom:0;left:0;right:0;padding:16px 28px 28px;z-index:10;display:flex;align-items:center;gap:10px;background:linear-gradient(to top,rgba(0,0,0,0.7),transparent);';
+                    const pct = ((slideIdx + 1) / slides.length) * 100;
+                    const label = slideIdx === slides.length - 1 ? 'Fim' : `${slideIdx + 1}/${slides.length}`;
+                    bar.innerHTML = '<div style="flex:1;height:3px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;"><div style="height:100%;background:#fff;border-radius:2px;width:' + pct + '%"></div></div><span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:500;">' + label + '</span>';
+                    slide.appendChild(bar);
+                }
+            });
         }, i);
         await page.waitForTimeout(400);
 

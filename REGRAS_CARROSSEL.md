@@ -17,6 +17,7 @@
 - **NOMENCLATURA**: `slide_1.png`, `slide_2.png`... (com UNDERSCORE, não hífen)
 - **QUALIDADE**: deviceScaleFactor = 2.5714 (1080/420 = 2.5714x)
 - **PASTA**: Salvar na pasta específica do tema (ex: `slides/reeducacao-alimentar/`)
+- **BARRA DE PROGRESSO**: O script adiciona automaticamente a barra em todos os slides (slide 1 a N mostra "1/N", último slide mostra "Fim")
 
 ### 3. 📏 DIMENSÕES FINAIS
 - **RESOLUÇÃO**: 1080x1350px (proporção 4:5 do Instagram)
