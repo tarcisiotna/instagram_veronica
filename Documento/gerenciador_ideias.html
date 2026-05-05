@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciador de Ideias - Instagram Verônica</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { color: #394233; margin-bottom: 20px; font-size: 24px; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .topic-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; }
+    .topic-item:hover { background: #fafafa; }
+    .topic-item:last-child { border-bottom: none; }
+    .topic-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: #bf9566; }
+    .topic-item label { flex: 1; cursor: pointer; font-size: 16px; color: #333; }
+    .topic-item.posted label { color: #888; text-decoration: line-through; }
+    .topic-item .date { font-size: 12px; color: #999; }
+    .btn { background: #bf9566; color: #fff; border: none; padding: 14px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; }
+    .btn:hover { background: #a88455; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .status { padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 14px; }
+    .status.success { background: #d4edda; color: #155724; }
+    .status.error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Ideias para Carrosséis Instagram</h1>
+    
+    <div class="card">
+      <div class="filter-btns">
+        <button class="filter-btn active" onclick="setFilter('todos')">Todos</button>
+        <button class="filter-btn" onclick="setFilter('pendente')">Pendente</button>
+        <button class="filter-btn" onclick="setFilter('pronto')">Pronto</button>
+        <button class="filter-btn" onclick="setFilter('revisado')">Revisado</button>
+        <button class="filter-btn" onclick="setFilter('publicado')">Publicado</button>
+      </div>
+      <div id="topicsList"></div>
+    </div>
+    
+    <button class="btn" id="createBtn" onclick="createCarousel()">Criar Carrossel Selecionado</button>
+    <div id="status"></div>
+  </div>
+
+  <style>
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: auto; }
+    .status-pendente { background: #ffeaa7; color: #d68910; }
+    .status-pronto { background: #81ecec; color: #00b894; }
+    .status-revisado { background: #74b9ff; color: #0984e3; }
+    .status-publicado { background: #55efc4; color: #00b894; }
+    .filter-btns { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-btn { padding: 8px 16px; border: none; border-radius: 20px; font-size: 13px; cursor: pointer; background: #eee; color: #666; }
+    .filter-btn.active { background: #bf9566; color: #fff; }
+  </style>
+  <script>
+    // Status: pendente, pronto, revisado, publicado
+    const topics = [
+      { id: 1, title: "Juju Salimeni usa caneta emagrecedora", status: "pendente" },
+      { id: 2, title: "Canetas emagrecedoras funcionam?", status: "pendente" },
+      { id: 3, title: "Riscos e reações adversas", status: "pendente" },
+      { id: 4, title: "Microdosagem é segura?", status: "pendente" },
+      { id: 5, title: "Canetas proibidas pela Anfisa", status: "pendente" },
+      { id: 6, title: "Canetas emagrecedoras", status: "publicado", date: "03/05/2026" },
+      { id: 7, title: "Como saber se a caneta é falsa", status: "pronto" },
+      { id: 8, title: "Reganho de peso (82% recuperam)", status: "pendente" },
+      { id: 9, title: "Acompanhamento médico", status: "pendente" },
+      { id: 10, title: "Mercado em expansão (R$ 11bi → R$ 20bi)", status: "pendente" },
+      { id: 11, title: "Mitos e verdades sobre canetas", status: "pendente" },
+    ];
+
+    let selectedTopic = null;
+    let filter = 'todos';
+
+    const statusLabels = {
+      pendente: 'Pendente',
+      pronto: 'Pronto',
+      revisado: 'Revisado',
+      publicado: 'Publicado'
+    };
+
+    function render() {
+      const list = document.getElementById('topicsList');
+      const filtered = filter === 'todos' ? topics : topics.filter(t => t.status === filter);
+      
+      list.innerHTML = filtered.map(t => `
+        <div class="topic-item ${t.status === 'publicado' ? 'posted' : ''}" onclick="selectTopic(${t.id})">
+          <input type="radio" name="topic" ${selectedTopic === t.id ? 'checked' : ''} ${t.status === 'publicado' ? 'disabled' : ''}>
+          <label>${t.title}</label>
+          <span class="status-badge status-${t.status}">${statusLabels[t.status]}</span>
+          ${t.date ? `<span class="date">${t.date}</span>` : ''}
+        </div>
+      `).join('');
+      
+      document.getElementById('createBtn').disabled = !selectedTopic;
+    }
+
+    function setFilter(f) {
+      filter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      render();
+    }
+
+    function selectTopic(id) {
+      const topic = topics.find(t => t.id === id);
+      if (topic.status !== 'publicado') {
+        selectedTopic = id;
+        render();
+      }
+    }
+
+    function createCarousel() {
+      const topic = topics.find(t => t.id === selectedTopic);
+      if (topic) {
+        const folderName = topic.title.toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]/g, '-');
+        
+        document.getElementById('status').innerHTML = `
+          <div class="status success">
+            ✓ Topic selecionado: "${topic.title}"<br>
+            Pasta: slides/${folderName}/<br><br>
+            <strong>Próximos passos:</strong><br>
+            1. Criar pasta: slides/${folderName}/<br>
+            2. Gerar HTML com modelo_instagram.py<br>
+            3. Exportar com export_veronica_node.js<br>
+            4. Após revisar, marcar como "Revisado"
+          </div>
+        `;
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>

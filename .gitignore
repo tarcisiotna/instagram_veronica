@@ -16,7 +16,10 @@ slides/*/
 !slides/*/*.txt     # Legenda
 slides_veronica/
 Imagens/
-Documento/
+# Documento - exceto gerenciador
+Documento/*
+!Documento/
+!Documento/gerenciador_ideias.html
 
 # Ambiente
 .env
