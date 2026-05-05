@@ -82,7 +82,18 @@ Formato obrigatório:
 📸 @veronicabomfim.nutri
 ```
 
-### 9. 🔄 PROCESSO CORRETO
+### 9. 🖼️ CTA FINAL - REGRA OBRIGATÓRIA
+**APÓS criar qualquer novo carrossel, SEMPRE adicionar o CTA image como último slide**
+
+- **IMAGEM**: Usar `Imagens/CTA/CTA.png`
+- **POSIÇÃO**: Sempre como slide final (após todos os conteúdos)
+- **IDENTIDADE VISUAL**: Aplicar identidade visual da marca:
+  - Gradiente verde na base (#394233)
+  - Divisor dourado (#bf9566) ao final da imagem
+  - Imagem posicionada para mostrar o rosto (object-position: 50% 55%)
+- **NUNCA ESQUECER**: Esta regra NÃO pode ser violada
+
+### 10. 🔄 PROCESSO CORRETO
 ```bash
 # 1. Gerar HTML
 python3 modelo_instagram.py "Título" "Subtítulo"
@@ -98,7 +109,14 @@ file slides/NOME-DO-TEMA/slide_1.png
 # Editar slides/NOME-DO-TEMA/legenda.txt
 # Preencher: Descrição, Resumo (4 pontos), Fontes, Hashtags
 
-# 5. Postar no Instagram!
+# 5. ADICIONAR CTA FINAL - Obrigatório!
+# Substituir último slide pelo CTA (Imagens/CTA/CTA.png)
+# Aplicar identidade visual da marca
+
+# 6. Re-exportar o slide final
+# Atualizar contagem de slides se necessário
+
+# 7. Postar no Instagram!
 ```
 
 **VIOLAÇÃO DESTAS REGRAS = SLIDES NÃO FUNCIONAM NO INSTAGRAM**
