@@ -2,11 +2,15 @@
 
 ## 📋 REGRAS QUE NÃO PODEM SER VIOLADAS
 
-### 1. 🎨 GERAÇÃO DO HTML
-- **SCRIPT**: Usar APENAS `modelo_instagram.py` (baseado em `create_veronica_carousel.py`)
-- **NOME DO ARQUIVO**: Gerar SEMPRE como `carousel.html` (nunca `carousel_veronica.html`)
+### 1. 🎨 CRIAÇÃO DO CARROSSEL
+
+- **SCRIPT**: Usar APENAS `modelo_instagram.py` ou criar HTML manualmente
+- **NOME DO ARQUIVO**: Gerar SEMPRE como `carousel.html`
 - **DIMENSÕES**: Manter HTML em 420px de largura (export scale para 1080px)
-- **IMAGENS**: Usar pasta `Imagens/nanobanana/` (prioritária)
+- **FOTO SLIDE 1**: Usar foto ALEATÓRIA da pasta `Imagens/nanobanana/`
+- **DESIGN**: Adaptar conforme o assunto/tema informado
+- **IDENTIDADE MARCA**: Livre para usar guia da marca conforme necessidade
+- **CTA FINAL**: Sempre usar `CTA.png` como último slide (slide_8)
 
 ### 2. 📸 EXPORT DOS SLIDES  
 - **SCRIPT**: Usar APENAS `export_veronica_node.js` (scale factor 2.5714)

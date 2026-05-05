@@ -45,7 +45,7 @@ FONT_HEADING = "Playfair Display"
 FONT_BODY = "TT Norms"
 BRAND_NAME = "Verônica Bomfim de Lima"
 INSTA_HANDLE = "@veronicabomfim.nutri"
-TOTAL_SLIDES = 7
+TOTAL_SLIDES = 8  # 7 slides + CTA (slide_8)
 CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 
