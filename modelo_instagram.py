@@ -1,11 +1,11 @@
 import base64
+import random
 from pathlib import Path
 import sys
 
 # ============================================
 # VALIDAÇÃO DAS REGRAS - NÃO VIOLAR!
 # ============================================
-# Verificar se está usando imagens de alta qualidade
 for img_path in [
     "/home/tarcisio/instagram_veronica/Imagens/foto1.jpeg",
 ]:
@@ -16,40 +16,20 @@ for img_path in [
             print("   Use apenas imagens >7MB: 0AVA3114.jpg, 0AVA3115.jpg, etc.")
             sys.exit(1)
 
-# ============================================
-# REGRA PADRÃO PARA TODOS OS CARROSSÉIS
-# ============================================
-# 1. Slide 7 (CTA): Usar logotipo sem fundo da pasta "Imagens/Sem fundo/"
-# 2. Slide 7: Textos em branco (#fff) com sombras para melhor legibilidade
-# 3. Slide 7: Remover divisor branco (divider) e overlay
-# 4. Slide 7: Remover barra de progresso (slides finais não têm)
-# 5. Slide 7: Fontes maiores (18px nome, 15px contatos, 15px botão)
-# 6. Cores seguindo Guia da marca.md: #bf9566 (bronze), #ecd7ba, #FAF9F7, #394233
-# 7. Tipografia: Playfair Display (títulos) + TT Norms (textos)
-# 8. Legenda: Gerar NA PASTA DO TEMA (não em slides/raiz)
-# 9. Slides exportados: usar device_scale_factor (420px → 1080px)
-# 10. Nunca usar "Dica da especialista" - usar apenas "Dica"
-# 11. Slide 7: Usar apenas "Agende sua consulta" - nunca "com a especialista"
-# 12. Slide 1: Usar logotipo sem fundo da pasta "Imagens/Sem fundo/" (igual ao Slide 7)
-# 13. Slide 7 (CTA): NÃO incluir divisor dourado (#bf9566) - visual mais limpo
-# ============================================
-
-# Brand: Verônica Bomfim de Lima - seguindo Guia da marca.md
-BRAND_PRIMARY = "#bf9566"  # Bronze (cor principal)
-BRAND_LIGHT = "#ecd7ba"    # Bege claro
-BRAND_DARK = "#394233"     # Verde escuro/charcoal
-LIGHT_BG = "#FAF9F7"      # Off-white (quase branco)
-LIGHT_BORDER = "#ecd7ba"  # Bege claro para bordas
-DARK_BG = "#394233"        # Fundo escuro
+BRAND_PRIMARY = "#bf9566"
+BRAND_LIGHT = "#ecd7ba"
+BRAND_DARK = "#394233"
+LIGHT_BG = "#FAF9F7"
+LIGHT_BORDER = "#ecd7ba"
+DARK_BG = "#394233"
 FONT_HEADING = "Playfair Display"
 FONT_BODY = "TT Norms"
 BRAND_NAME = "Verônica Bomfim de Lima"
 INSTA_HANDLE = "@veronicabomfim.nutri"
-TOTAL_SLIDES = 8  # 7 slides + CTA (slide_8)
+TOTAL_SLIDES = 8
 CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 
-# Profile images for Slide 1 - NANOBANANA (pasta prioritária) - NOVAS FOTOS
 PROFILE_IMAGES = [
     "/home/tarcisio/instagram_veronica/Imagens/nanobanana/936f4681-434d-4d17-af25-6ccc34f8846a.jpeg",
     "/home/tarcisio/instagram_veronica/Imagens/nanobanana/08f51a8e-19df-415e-bbd0-d8e61192c9a7.jpeg",
@@ -60,7 +40,6 @@ PROFILE_IMAGES = [
     "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5f649b35-80b6-48a1-9d3f-cea879b5f42d.jpeg",
 ]
 
-# Load image as base64
 def load_image_base64(image_path):
     path = Path(image_path)
     if not path.exists():
@@ -71,17 +50,14 @@ def load_image_base64(image_path):
     b64 = base64.b64encode(path.read_bytes()).decode()
     return f"data:{mime};base64,{b64}"
 
-# Carregar IMAGENS SEPARADAS para cada slide (slide 1 a slide 6 usa imagens diferentes)
 slide_images = []
-for img_path in PROFILE_IMAGES[:7]:  # Usar as primeiras 7 imagens
+for img_path in PROFILE_IMAGES[:7]:
     img_data = load_image_base64(img_path)
     if img_data:
         slide_images.append(img_data)
 
-# Usar primeira imagem como profile_img_data_uri (para slide 1)
-profile_data_uri = slide_images[0] if slide_images else None
+profile_data_uri = random.choice(slide_images) if slide_images else None
 
-# Logo images for Slide 7
 LOGO_IMAGES = [
     "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/1.png",
     "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/2.png",
@@ -93,10 +69,8 @@ LOGO_IMAGES = [
     "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/8.png",
     "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/9.png",
 ]
-# Use first logo image (or rotate if you want)
-logo_data_uri = load_image_base64(LOGO_IMAGES[0])  # Using 1.png as logo
+logo_data_uri = load_image_base64(LOGO_IMAGES[0])
 
-# Progress bar
 def progress_bar(index, total, is_light):
     pct = ((index + 1) / total) * 100
     track = "rgba(0,0,0,0.08)" if is_light else "rgba(255,255,255,0.12)"
@@ -109,7 +83,6 @@ def progress_bar(index, total, is_light):
   <span style="font-size:11px;color:{label};font-weight:500;">{index+1}/{total}</span>
 </div>'''
 
-# Swipe arrow
 def swipe_arrow(is_light):
     if is_light:
         bg = "rgba(0,0,0,0.06)"
@@ -123,11 +96,9 @@ def swipe_arrow(is_light):
   </svg>
 </div>'''
 
-# Get topic from command line or use default
-topic = sys.argv[1] if len(sys.argv) > 1 else "Reeducação alimentar passo a passo"
-hook = sys.argv[2] if len(sys.argv) > 2 else "7 passos para transformar sua relação com a comida"
+topic = sys.argv[1] if len(sys.argv) > 1 else "Mitos e verdades - Nutrição Oncológica"
+hook = sys.argv[2] if len(sys.argv) > 2 else "O que realmente funciona na alimentação durante o tratamento"
 
-# Slide 1 - Hook with profile image background
 slide1_img = ""
 if profile_data_uri:
     slide1_img = f'''<img src="{profile_data_uri}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
@@ -139,9 +110,9 @@ slides.append(f'''
 <div class="slide" style="background:{LIGHT_BG};display:flex;flex-direction:column;justify-content:center;padding:0 36px;overflow:hidden;position:relative;">
   {slide1_img}
   <div style="position:relative;z-index:2;">
-    <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:#fff;margin-bottom:16px;">REEDUCAÇÃO ALIMENTAR</span>
+    <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:#fff;margin-bottom:16px;">MITOS E VERDADES</span>
     <h1 style="font-family:'{FONT_HEADING}',serif;font-size:32px;font-weight:700;color:#fff;line-height:1.1;margin:0 0 16px 0;">{hook}</h1>
-    <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.5;margin:0 0 24px 0;">Guia prático baseado no Ministério da Saúde</p>
+    <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.5;margin:0 0 24px 0;">Nutrição baseada em evidências para pacientes oncológicos</p>
     <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
       <div style="width:40px;height:40px;border-radius:50%;background:{BRAND_PRIMARY};display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;">V</div>
       <div>
@@ -150,114 +121,103 @@ slides.append(f'''
       </div>
     </div>
   </div>
-  {progress_bar(0, TOTAL_SLIDES, False)}
   {swipe_arrow(False)}
 </div>
 ''')
 
-# Slide 2 - Problem (Myths)
 slides.append(f'''
 <div class="slide" style="background:{DARK_BG};display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 52px;overflow:hidden;">
-  <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_LIGHT};margin-bottom:16px;">MITOS COMUNS</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 14px 0;">O que você ouviu não é verdade</h2>
-  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.5;margin:0 0 12px 0;">Muitos pacientes acreditam que dietas restritivas são o único caminho.</p>
+  <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_LIGHT};margin-bottom:16px;">MITOS POPULARES</span>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 14px 0;">Você já ouviu falar que...</h2>
+  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.5;margin:0 0 12px 0;">Pacientes vivem cercados de informações erradas sobre alimentação e câncer.</p>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Dieta restritiva funciona</span>
-    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Preciso cortar carboidratos</span>
+    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Açúcar alimenta o câncer</span>
+    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Dieta cetogênica cura câncer</span>
+    <span style="font-size:11px;padding:5px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#94a3b8;text-decoration:line-through;">Jejuar potencializa a quimio</span>
   </div>
-  {progress_bar(1, TOTAL_SLIDES, False)}
   {swipe_arrow(False)}
 </div>
 ''')
 
-# Slide 3 - Solution (Truths)
 slides.append(f'''
 <div class="slide" style="background:linear-gradient(165deg, {BRAND_DARK} 0%, {BRAND_PRIMARY} 50%, {BRAND_LIGHT} 100%);display:flex;flex-direction:column;justify-content:center;padding:0 36px;overflow:hidden;">
   <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,0.8);margin-bottom:16px;">A VERDADE</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:30px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 20px 0;">Pequenas mudanças, grandes resultados</h2>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:30px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 20px 0;">A ciência mostra outra coisa</h2>
   <div style="padding:20px;background:rgba(0,0,0,0.25);border-radius:12px;border:1px solid rgba(255,255,255,0.15);margin-bottom:16px;">
     <p style="font-family:'{FONT_BODY}',sans-serif;font-size:13px;color:rgba(255,255,255,0.7);margin:0 0 8px 0;">Dica</p>
-    <p style="font-family:'{FONT_HEADING}',serif;font-size:16px;color:#fff;font-style:italic;line-height:1.5;margin:0;">"Pequenas mudanças diárias geram resultados sustentáveis"</p>
+    <p style="font-family:'{FONT_HEADING}',serif;font-size:16px;color:#fff;font-style:italic;line-height:1.5;margin:0;">"Nenhum alimento sozinho cura ou causa câncer. Toda célula do corpo usa glicose — cortar açúcar não 'mata' o tumor, mas pode desnutrir o paciente."</p>
   </div>
-  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin:0;font-weight:600;">Guia Alimentar + acompanhamento = transformação real.</p>
-  {progress_bar(2, TOTAL_SLIDES, False)}
+  <p style="font-family:'{FONT_BODY}',sans-serif;font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin:0;font-weight:600;">Evidências: INCA, OMS, ESPEN, SBNO.</p>
   {swipe_arrow(False)}
 </div>
 ''')
 
-# Slide 4 - Features (Benefits)
 slides.append(f'''
 <div class="slide" style="background:{LIGHT_BG};display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 52px;overflow:hidden;">
-  <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_PRIMARY};margin-bottom:16px;">BENEFÍCIOS REAIS</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#1e293b;line-height:1.15;margin:0 0 18px 0;">O que você conquista</h2>
+  <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_PRIMARY};margin-bottom:16px;">O QUE FUNCIONA</span>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#1e293b;line-height:1.15;margin:0 0 18px 0;">Benefícios comprovados</h2>
   <div style="display:flex;flex-direction:column;gap:0;">
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="color:{BRAND_PRIMARY};font-size:15px;width:18px;text-align:center;flex-shrink:0;">✦</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Saciedade real</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Sem fome constante</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Manter peso e força</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Nutrição adequada preserva massa magra</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="color:{BRAND_PRIMARY};font-size:15px;width:18px;text-align:center;flex-shrink:0;">✦</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Mais energia</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Disposição no dia a dia</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Melhor tolerância ao tratamento</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Menos interrupções por efeitos colaterais</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;">
       <span style="color:{BRAND_PRIMARY};font-size:15px;width:18px;text-align:center;flex-shrink:0;">✦</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Relação saudável</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Prazer em comer bem</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Menos efeitos colaterais</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Náuseas, fadiga e mucosite reduzidos</span></div>
     </div>
   </div>
-  {progress_bar(3, TOTAL_SLIDES, True)}
   {swipe_arrow(True)}
 </div>
 ''')
 
-# Slide 5 - Details (Safety)
 slides.append(f'''
 <div class="slide" style="background:{DARK_BG};display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 52px;overflow:hidden;">
   <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_LIGHT};margin-bottom:16px;">PRINCÍPIOS</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 14px 0;">Pilares da reeducação</h2>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#fff;line-height:1.15;margin:0 0 14px 0;">O que realmente importa</h2>
   <div style="display:flex;flex-direction:column;gap:10px;">
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
       <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">🥗</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Comer com prazer</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Sem culpa ou restrição</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Dieta variada e colorida</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Frutas, legumes, verduras, cereais integrais</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
-      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">⏰</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Regularidade</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Horários consistentes</span></div>
+      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">🥩</span>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Proteínas em todas as refeições</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Carnes, ovos, leguminosas, laticínios</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;">
-      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">🩺</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Acompanhamento</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Nutricionista é essencial</span></div>
+      <span style="color:{BRAND_LIGHT};font-size:15px;width:18px;text-align:center;flex-shrink:0;">⚠️</span>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#fff;display:block;">Nada de suplementos por conta própria</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Podem interferir no tratamento</span></div>
     </div>
   </div>
-  {progress_bar(4, TOTAL_SLIDES, False)}
   {swipe_arrow(False)}
 </div>
 ''')
 
-# Slide 6 - How-to (Process)
 slides.append(f'''
 <div class="slide" style="background:{LIGHT_BG};display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 52px;overflow:hidden;">
   <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:{BRAND_PRIMARY};margin-bottom:16px;">PASSO A PASSO</span>
-  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#1e293b;line-height:1.15;margin:0 0 18px 0;">3 etapas para começar</h2>
+  <h2 style="font-family:'{FONT_HEADING}',serif;font-size:28px;font-weight:600;color:#1e293b;line-height:1.15;margin:0 0 18px 0;">3 passos para uma nutrição segura</h2>
   <div style="display:flex;flex-direction:column;gap:0;">
     <div style="display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="font-family:'{FONT_HEADING}',serif;font-size:26px;font-weight:300;color:{BRAND_PRIMARY};min-width:34px;line-height:1;flex-shrink:0;">01</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Avaliação nutricional</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Entenda seus hábitos atuais</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Avaliação individualizada</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Histórico clínico e estado nutricional</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid {LIGHT_BORDER};">
       <span style="font-family:'{FONT_HEADING}',serif;font-size:26px;font-weight:300;color:{BRAND_PRIMARY};min-width:34px;line-height:1;flex-shrink:0;">02</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Plano personalizado</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Pequenas mudanças graduais</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Plano sem restrições desnecessárias</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Comer bem sem radicalismos</span></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:16px;padding:14px 0;">
       <span style="font-family:'{FONT_HEADING}',serif;font-size:26px;font-weight:300;color:{BRAND_PRIMARY};min-width:34px;line-height:1;flex-shrink:0;">03</span>
-      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Acompanhamento contínuo</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Ajustes conforme evolução</span></div>
+      <div><span style="font-family:'{FONT_BODY}',sans-serif;font-size:14px;font-weight:600;color:#1e293b;display:block;">Suplementação só quando indicada</span><span style="font-family:'{FONT_BODY}',sans-serif;font-size:12px;color:#8A8580;">Baseada em exames e evidências</span></div>
     </div>
   </div>
-  {progress_bar(5, TOTAL_SLIDES, True)}
   {swipe_arrow(True)}
 </div>
 ''')
 
-# Slide 7 - CTA using CTA.png (new standard format)
 cta_img_path = "/home/tarcisio/instagram_veronica/Imagens/CTA/CTA.png"
 cta_img_data_uri = None
 if Path(cta_img_path).exists():
@@ -267,23 +227,17 @@ if Path(cta_img_path).exists():
 else:
     print("⚠️  CTA.png not found, using fallback gradient")
 
-# Logo image (without background) - with enhanced visual effects
 logo_img_tag = f'<img src="{logo_data_uri}" style="width:180px;height:auto;margin:0 auto 20px;filter:drop-shadow(0 8px 25px rgba(191,149,102,0.6));">' if logo_data_uri else f'<div style="width:100px;height:100px;border-radius:50%;background:{BRAND_PRIMARY};display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px;font-weight:700;margin:0 auto 20px;box-shadow:0 8px 30px rgba(191,149,102,0.6);border:4px solid rgba(255,255,255,0.4);">V</div>'
 
 slides.append(f'''
 <div class="slide" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0;overflow:hidden;position:relative;">
   <img src="{cta_img_data_uri}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
-  
+
   <div style="position:absolute;bottom:0;left:0;right:0;padding:30px 20px;background:linear-gradient(to top,rgba(57,66,51,0.95),rgba(57,66,51,0.7),transparent);text-align:center;">
-  </div>
-  <div class="progress-bar" style="background:transparent;">
-    <div class="progress-track"><div class="progress-fill" style="width:100%;"></div></div>
-    <span class="progress-label">{TOTAL_SLIDES}/{TOTAL_SLIDES}</span>
   </div>
 </div>
 ''')
 
-# Build HTML
 slides_html = "\n".join(slides)
 dots_html = "\n".join(f'<div class="dot{" active" if i==0 else ""}" data-index="{i}"></div>' for i in range(TOTAL_SLIDES))
 
@@ -339,7 +293,7 @@ html = f'''<!DOCTYPE html>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
     </div>
     <div class="ig-caption">
-      <span class="handle">{INSTA_HANDLE}</span> {hook} 🥗 Saúde começa no prato! #nutrição #saudável #dicas
+      <span class="handle">{INSTA_HANDLE}</span> {hook} 🥗 Mitos e verdades da nutrição oncológica! #nutrição #câncer #mitoseverdades #oncologia #saúde #veronicabomfim
       <span class="time">2 HOURS AGO</span>
     </div>
   </div>
@@ -369,33 +323,33 @@ html = f'''<!DOCTYPE html>
 </html>
 '''
 
-output_file = "/home/tarcisio/instagram_veronica/slides/reeducacao-alimentar/carousel.html"
+output_file = "/home/tarcisio/instagram_veronica/slides/mitos-verdades-nutricao-oncologica/carousel.html"
 Path(output_file).write_text(html, encoding="utf-8")
 
-# Criar pasta do tema baseada no output_file
 slides_dir = Path(output_file).parent
 slides_dir.mkdir(exist_ok=True)
 
-# Gerar arquivo de legenda para Instagram (salvo na pasta do tema)
-# IMPORTANTE: Editar manualmente após gerar - preencher os campos entre []
 legenda = f"""{INSTA_HANDLE}
 
 {hook}
 
 📌 Descrição:
-[Adicione uma descrição breve sobre o tema do carrossel]
+[Adicione descrição sobre mitos e verdades da nutrição oncológica]
 
 📝 Resumo:
-• [Ponto 1 relevante sobre o tema]
-• [Ponto 2 relevante sobre o tema]  
-• [Ponto 3 relevante sobre o tema]
-• [Ponto 4 relevante sobre o tema]
+• [Ponto 1 relevante sobre mitos e verdades]
+• [Ponto 2 relevante sobre mitos e verdades]
+• [Ponto 3 relevante sobre mitos e verdades]
+• [Ponto 4 relevante sobre mitos e verdades]
 
 📚 Fontes:
-[Adicione fontes ou referências - ex: Ministério da Saúde, OMS, estudos científicos]
+INCA — Instituto Nacional de Câncer
+OMS — Organização Mundial da Saúde
+ESPEN — Diretrizes Europeias de Nutrição Clínica
+SBNO — Sociedade Brasileira de Nutrição Oncológica
 
 🏷️ Hashtags:
-#[TEMA_PRINCIPAL] #nutrição #saúde #alimentação #veronicabomfim #nutricionista #bemestar #[TAGS_ADICIONAIS]
+#nutricao #oncologia #mitoseverdades #cancer #tratamentooncologico #nutricionista #veronicabomfim #recife #saude #alimentacao
 
 📞 Contato:
 📱 {CONTACT_PHONE}

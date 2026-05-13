@@ -124,4 +124,48 @@ file slides/NOME-DO-TEMA/slide_1.png
 # 7. Postar no Instagram!
 ```
 
+### 11. 📊 BARRA DE PROGRESSO - PADRÃO OBRIGATÓRIO
+
+**🚫 NÃO incluir barra de progresso no HTML do modelo_instagram.py**
+- O script `export_veronica_node.js` adiciona automaticamente a barra em TODOS os slides
+- Incluir no HTML causa **duas barras sobrepostas** no slide exportado
+- Manter o HTML limpo, sem `<div class="progress-bar">` ou barras inline
+- Exceção: a função `progress_bar()` pode existir no código, mas **não ser chamada** nos slides
+- A barra no slide CTA também deve ser removida — o export cuida dela
+
+**Modelo de referência**: `/home/tarcisio/instagram_veronica/slides/como-saber-se-caneta-e-falsa/`
+
+A barra de progresso deve seguir este padrão em TODOS os carrosséis:
+
+**Estrutura HTML:**
+```html
+<div class="progress-bar">
+  <div class="progress-track"><div class="progress-fill" style="width:XX%;"></div></div>
+  <span class="progress-label">N/7</span>
+</div>
+<div class="swipe-arrow">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M9 6l6 6-6 6" stroke="rgba(255,255,255,0.35)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+```
+
+**CSS obrigatório (padrão caneta-e-falsa):**
+```css
+.progress-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 28px 20px; z-index: 10; display: flex; align-items: center; gap: 10px; background: linear-gradient(to top,rgba(0,0,0,0.7),transparent); }
+.progress-track { flex: 1; height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: #fff; border-radius: 2px; }
+.progress-label { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 500; }
+.swipe-arrow { position: absolute; right: 0; top: 0; bottom: 0; width: 48px; z-index: 9; display: flex; align-items: center; justify-content: center; background: linear-gradient(to right,transparent,rgba(255,255,255,0.08)); }
+```
+
+**Regras específicas:**
+- **Track**: 3px altura, cor `rgba(255,255,255,0.12)` ou `rgba(0,0,0,0.08)` (slides claros)
+- **Fill**: Cor dourada da marca `#bf9566` (sempre sólido, sem gradiente)
+- **Gradiente de fundo**: `linear-gradient(to top,rgba(0,0,0,0.7),transparent)` abaixo da barra
+- **Padding**: 16px 28px 20px
+- **Swipe arrow**: Gradient fade na lateral direita + chevron sutil (remover no último slide)
+- **Último slide (CTA)**: Barra 100%, label "Fim", SEM swipe arrow
+- **Visibilidade CTA**: Barra deve ter bom contraste — verificar em background escuro
+
 **VIOLAÇÃO DESTAS REGRAS = SLIDES NÃO FUNCIONAM NO INSTAGRAM**

@@ -2,7 +2,7 @@ const playwright = require('playwright');
 const fs = require('fs').promises;
 const path = require('path');
 
-const INPUT_HTML = process.argv[2] || "/home/tarcisio/instagram_veronica/slides/reeducacao-alimentar/carousel.html";
+const INPUT_HTML = process.argv[2] || "/home/tarcisio/instagram_veronica/slides/mitos-verdades-nutricao-oncologica/carousel.html";
 const OUTPUT_DIR = process.argv[3] || path.dirname(INPUT_HTML);
 const VIEW_W = 420;
 const VIEW_H = 525;
