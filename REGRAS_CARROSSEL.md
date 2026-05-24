@@ -60,6 +60,8 @@ instagram_veronica/
 
 **Após gerar, SEMPRE editar manualmente a `legenda.txt`**
 
+⚠️ **O contato deve conter TODOS os 4 itens abaixo: telefone, email, Instagram e site**
+
 Formato obrigatório:
 ```
 @veronicabomfim.nutri
