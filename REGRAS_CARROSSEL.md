@@ -85,6 +85,7 @@ Formato obrigatório:
 📱 (81) 9 9864-5846
 📧 veronicabomfim.nutri@gmail.com
 📸 @veronicabomfim.nutri
+🌐 https://veronicabomfimnutriweb.pages.dev/
 ```
 
 ### 9. 🖼️ CTA FINAL - REGRA OBRIGATÓRIA
