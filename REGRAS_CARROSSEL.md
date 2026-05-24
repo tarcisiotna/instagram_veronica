@@ -92,11 +92,21 @@ Formato obrigatório:
 
 - **IMAGEM**: Usar `Imagens/CTA/CTA.png`
 - **POSIÇÃO**: Sempre como slide final (após todos os conteúdos)
-- **IDENTIDADE VISUAL**: Aplicar identidade visual da marca:
-  - Gradiente verde na base (#394233)
-  - Imagem posicionada para mostrar o rosto (object-position: 50% 55%)
+- **IDENTIDADE VISUAL**:
+  ```html
+  <div class="slide" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0;overflow:hidden;position:relative;">
+    <img src="{cta_b64}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:30px 20px;background:linear-gradient(to top,rgba(57,66,51,0.95),rgba(57,66,51,0.7),transparent);text-align:center;">
+    </div>
+  </div>
+  ```
+  - **Apenas CTA.png como fundo**, sem overlay de texto — o PNG já contém todos os elementos visuais (logo, headline, botão, contato)
+  - Gradiente verde vazio na base (#394233) para legibilidade
+  - **SEM overlay de texto** (sem "V", sem "Pronto para...", sem "Agendar", sem telefone/email)
   - **SEM divisor dourado** (barra #bf9566 removida para visual mais limpo)
+  - **SEM barra de progresso no HTML** (o export adiciona automaticamente)
 - **NUNCA ESQUECER**: Esta regra NÃO pode ser violada
+- **Modelo de referência**: `slides/canetas-emagrecedoras/carousel.html` (slide 8) e `modelo_instagram.py`
 
 ### 10. 🔄 PROCESSO CORRETO
 ```bash
@@ -116,7 +126,9 @@ file slides/NOME-DO-TEMA/slide_1.png
 
 # 5. ADICIONAR CTA FINAL - Obrigatório!
 # Substituir último slide pelo CTA (Imagens/CTA/CTA.png)
-# Aplicar identidade visual da marca
+# Seguir IDENTIDADE VISUAL da regra 9:
+#   - Apenas CTA.png como fundo + gradiente verde vazio na base
+#   - SEM overlay de texto, SEM barra dourada
 
 # 6. Re-exportar o slide final
 # Atualizar contagem de slides se necessário
