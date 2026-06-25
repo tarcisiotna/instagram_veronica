@@ -2,6 +2,8 @@ import base64
 import random
 from pathlib import Path
 
+BASE_DIR = Path(__file__).parent
+
 BRAND_PRIMARY = "#bf9566"
 BRAND_LIGHT = "#ecd7ba"
 BRAND_DARK = "#394233"
@@ -16,22 +18,22 @@ CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 TOTAL_SLIDES = 7
 
-nanobanana_dir = Path("/home/tarcisio/instagram_veronica/Imagens/nanobanana")
+nanobanana_dir = BASE_DIR / "Imagens" / "nanobanana"
 nanobanana_imgs = list(nanobanana_dir.glob("*.jpeg"))
 img1_path = random.choice(nanobanana_imgs) if nanobanana_imgs else None
 
-cta_path = Path("/home/tarcisio/instagram_veronica/Imagens/CTA/CTA.png")
+cta_path = BASE_DIR / "Imagens" / "CTA" / "CTA.png"
 
 logo_paths = [
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/1.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/2.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/3.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/4.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/5.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/6.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/7.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/8.png"),
-    Path("/home/tarcisio/instagram_veronica/Imagens/Sem fundo/9.png"),
+    BASE_DIR / "Imagens" / "Sem fundo" / "1.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "2.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "3.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "4.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "5.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "6.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "7.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "8.png",
+    BASE_DIR / "Imagens" / "Sem fundo" / "9.png",
 ]
 
 def encode_img(path):
@@ -249,7 +251,7 @@ html = f'''<!DOCTYPE html>
 </html>
 '''
 
-output_dir = Path("/home/tarcisio/instagram_veronica/slides/perda-massa-magra-sarcopenia")
+output_dir = BASE_DIR / "slides" / "perda-massa-magra-sarcopenia"
 output_dir.mkdir(parents=True, exist_ok=True)
 output_path = output_dir / "carousel.html"
 output_path.write_text(html, encoding="utf-8")

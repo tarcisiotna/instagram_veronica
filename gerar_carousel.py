@@ -2,13 +2,15 @@ import base64
 import random
 from pathlib import Path
 
+BASE_DIR = Path(__file__).parent
+
 # Imagens - Slide 1: foto aleatória da pasta nanobanana
-nanobanana_dir = Path("/home/tarcisio/instagram_veronica/Imagens/nanobanana")
+nanobanana_dir = BASE_DIR / "Imagens" / "nanobanana"
 nanobanana_imgs = list(nanobanana_dir.glob("*.jpeg"))
 img1_path = random.choice(nanobanana_imgs) if nanobanana_imgs else None
 
 # Slide 7 (CTA): sempre usar CTA.png
-img_cta_path = Path("/home/tarcisio/instagram_veronica/Imagens/CTA/CTA.png")
+img_cta_path = BASE_DIR / "Imagens" / "CTA" / "CTA.png"
 
 def encode_img(path):
     if not path or not path.exists():
@@ -251,7 +253,7 @@ if(dx<-40)goTo(idx+1);else if(dx>40)goTo(idx-1);}});
 </html>'''
 
 # Salvar na pasta correta
-slides_dir = Path("/home/tarcisio/instagram_veronica/slides/nutricao-oncologica")
+slides_dir = BASE_DIR / "slides" / "nutricao-oncologica"
 slides_dir.mkdir(parents=True, exist_ok=True)
 output_path = slides_dir / "carousel.html"
 output_path.write_text(html, encoding="utf-8")

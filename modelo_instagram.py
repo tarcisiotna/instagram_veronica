@@ -3,11 +3,13 @@ import random
 from pathlib import Path
 import sys
 
+BASE_DIR = Path(__file__).parent
+
 # ============================================
 # VALIDAÇÃO DAS REGRAS - NÃO VIOLAR!
 # ============================================
 for img_path in [
-    "/home/tarcisio/instagram_veronica/Imagens/foto1.jpeg",
+    str(BASE_DIR / "Imagens" / "foto1.jpeg"),
 ]:
     if Path(img_path).exists():
         size_mb = Path(img_path).stat().st_size / 1024 / 1024
@@ -31,13 +33,13 @@ CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 
 PROFILE_IMAGES = [
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/936f4681-434d-4d17-af25-6ccc34f8846a.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/08f51a8e-19df-415e-bbd0-d8e61192c9a7.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/2f8f305b-55fa-42c6-ab75-2b258509ad9c.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/7f6b31cf-bc56-42d5-9430-afc78d9b4534.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5caa0b8c-9fca-4b7d-8b58-fda5fa092f85.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5e3dd5f4-661b-4329-8496-92dc809e5c73.jpeg",
-    "/home/tarcisio/instagram_veronica/Imagens/nanobanana/5f649b35-80b6-48a1-9d3f-cea879b5f42d.jpeg",
+    str(BASE_DIR / "Imagens" / "nanobanana" / "936f4681-434d-4d17-af25-6ccc34f8846a.jpeg"),
+    str(BASE_DIR / "Imagens" / "nanobanana" / "08f51a8e-19df-415e-bbd0-d8e61192c9a7.jpeg"),
+    str(BASE_DIR / "Imagens" / "nanobanana" / "2f8f305b-55fa-42c6-ab75-2b258509ad9c.jpeg"),
+    str(BASE_DIR / "Imagens" / "nanobanana" / "7f6b31cf-bc56-42d5-9430-afc78d9b4534.jpeg"),
+    str(BASE_DIR / "Imagens" / "nanobanana" / "5caa0b8c-9fca-4b7d-8b58-fda5fa092f85.jpeg"),
+    str(BASE_DIR / "Imagens" / "nanobanana" / "5e3dd5f4-661b-4329-8496-92dc809e5c73.jpeg"),
+    str(BASE_DIR / "Imagens" / "nanobanana" / "5f649b35-80b6-48a1-9d3f-cea879b5f42d.jpeg"),
 ]
 
 def load_image_base64(image_path):
@@ -59,15 +61,15 @@ for img_path in PROFILE_IMAGES[:7]:
 profile_data_uri = random.choice(slide_images) if slide_images else None
 
 LOGO_IMAGES = [
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/1.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/2.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/3.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/4.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/5.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/6.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/7.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/8.png",
-    "/home/tarcisio/instagram_veronica/Imagens/Sem fundo/9.png",
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "1.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "2.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "3.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "4.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "5.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "6.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "7.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "8.png"),
+    str(BASE_DIR / "Imagens" / "Sem fundo" / "9.png"),
 ]
 logo_data_uri = load_image_base64(LOGO_IMAGES[0])
 
@@ -218,7 +220,7 @@ slides.append(f'''
 </div>
 ''')
 
-cta_img_path = "/home/tarcisio/instagram_veronica/Imagens/CTA/CTA.png"
+cta_img_path = str(BASE_DIR / "Imagens" / "CTA" / "CTA.png")
 cta_img_data_uri = None
 if Path(cta_img_path).exists():
     b64 = base64.b64encode(Path(cta_img_path).read_bytes()).decode()
@@ -323,7 +325,7 @@ html = f'''<!DOCTYPE html>
 </html>
 '''
 
-output_file = "/home/tarcisio/instagram_veronica/slides/mitos-verdades-nutricao-oncologica/carousel.html"
+output_file = str(BASE_DIR / "slides" / "mitos-verdades-nutricao-oncologica" / "carousel.html")
 Path(output_file).write_text(html, encoding="utf-8")
 
 slides_dir = Path(output_file).parent

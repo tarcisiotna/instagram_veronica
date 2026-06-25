@@ -23,7 +23,6 @@ Ferramenta para gerar carrosséis do Instagram e controlar assuntos já postados
    ```bash
    python -m venv venv
    source venv/bin/activate  # Linux/Mac
-   # Instale as dependências necessárias (ex: pip install playwright)
    ```
 3. Configure as dependências Node.js (para exportação):
    ```bash
@@ -50,15 +49,25 @@ Gerencie os temas já publicados no Instagram:
 ### Criação de Carrosséis
 Execute os scripts de geração de carrossel para criar prévias em HTML:
 ```bash
-python create_veronica_carousel.py
+python modelo_instagram.py "Título" "Subtítulo"
+# ou
+python gerar_carousel.py
+# ou
+python gerar_sarcopenia.py
 ```
 
 ### Exportação de Slides
 Use os scripts de exportação para gerar os slides em PNG para o Instagram:
 ```bash
-node export-slides.js
+node export_veronica_node.js
 # ou
-python export_veronica.py
+python export_slides.py
+```
+
+### Verificação de Regras
+Antes de exportar, verifique se o carrossel segue todas as regras:
+```bash
+python verificar_carrossel.py slides/nome-do-tema
 ```
 
 ## Fluxo de Trabalho
@@ -67,8 +76,12 @@ Após postar um assunto no Instagram, registre-o executando `python topic_manage
 ## Estrutura do Projeto
 - `topic_manager.py`: Script para controle de assuntos postados
 - `posted_topics.json`: Banco de dados de assuntos já publicados
-- `create_veronica_carousel.py`: Gera HTML de carrossel para Instagram
-- `export-*.js` / `export_*.py`: Scripts para exportar slides para PNG
+- `modelo_instagram.py`: Gera HTML de carrossel "Mitos e Verdades"
+- `gerar_carousel.py`: Gera HTML de carrossel "Nutrição Oncológica"
+- `gerar_sarcopenia.py`: Gera HTML de carrossel "Sarcopenia"
+- `export_veronica_node.js`: Exporta slides para PNG (Node.js + Playwright)
+- `export_slides.py`: Exporta slides para PNG (Python + Playwright)
+- `verificar_carrossel.py`: Verifica regras do carrossel antes de exportar
 - `.gitignore`: Exclui arquivos grandes (HTML, slides, imagens) do repositório
 
 ## Repositório

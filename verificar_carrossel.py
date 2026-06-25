@@ -42,7 +42,7 @@ def verificar_regras(pasta_slides):
         print("✅ Imagens: Nenhuma imagem de baixa qualidade detectada")
     
     # REGRA 3: Verificar se export script está disponível
-    export_script = Path("/home/tarcisio/instagram_veronica/export_veronica_node.js")
+    export_script = Path(__file__).parent / "export_veronica_node.js"
     if not export_script.exists():
         print("❌ VIOLAÇÃO: export_veronica_node.js não encontrado!")
         print("   Use o script correto com scale factor 2.5714")

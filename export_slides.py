@@ -2,9 +2,10 @@ import asyncio
 from pathlib import Path
 from playwright.async_api import async_playwright
 
-INPUT_HTML = Path("/home/tarcisio/instagram_veronica/slides/nutricao-oncologica/carousel.html")
-OUTPUT_DIR = Path("/home/tarcisio/instagram_veronica/slides/nutricao-oncologica")
-TOTAL_SLIDES = 7
+BASE_DIR = Path(__file__).parent
+INPUT_HTML = BASE_DIR / "slides" / "nutricao-oncologica" / "carousel.html"
+OUTPUT_DIR = BASE_DIR / "slides" / "nutricao-oncologica"
+TOTAL_SLIDES = None  # será detectado dinamicamente
 
 VIEW_W = 420
 VIEW_H = 525
@@ -22,6 +23,9 @@ async def export_slides():
         await page.set_content(html_content, wait_until="networkidle")
         await page.wait_for_timeout(3000)  # Wait for Google Fonts
 
+        total_slides = TOTAL_SLIDES or await page.evaluate("document.querySelectorAll('.slide').length")
+        print(f"Found {total_slides} slides")
+
         # Hide IG frame chrome
         await page.evaluate("""() => {
             document.querySelectorAll('.ig-header,.ig-dots,.ig-actions,.ig-caption')
@@ -34,7 +38,7 @@ async def export_slides():
         }""")
         await page.wait_for_timeout(500)
 
-        for i in range(TOTAL_SLIDES):
+        for i in range(total_slides):
             await page.evaluate("""(idx) => {
                 const track = document.querySelector('.carousel-track');
                 track.style.transition = 'none';
@@ -46,7 +50,7 @@ async def export_slides():
                 path=str(OUTPUT_DIR / f"slide_{i+1}.png"),
                 clip={"x": 0, "y": 0, "width": VIEW_W, "height": VIEW_H}
             )
-            print(f"Exported slide {i+1}/{TOTAL_SLIDES}")
+            print(f"Exported slide {i+1}/{total_slides}")
 
         await browser.close()
 
