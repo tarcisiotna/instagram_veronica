@@ -1,0 +1,26 @@
+{
+  "usadas": [
+    "0AVA3125.jpg",
+    "0AVA3128.jpg",
+    "0AVA3133.jpg",
+    "0AVA3135.jpg"
+  ],
+  "historico": [
+    {
+      "imagem": "0AVA3133.jpg",
+      "tema": "fome-fisica-vs-fome-emocional"
+    },
+    {
+      "imagem": "0AVA3125.jpg",
+      "tema": "sono-estresse-fome"
+    },
+    {
+      "imagem": "0AVA3135.jpg",
+      "tema": "sono-estresse-fome"
+    },
+    {
+      "imagem": "0AVA3128.jpg",
+      "tema": "intestino-imunidade"
+    }
+  ]
+}

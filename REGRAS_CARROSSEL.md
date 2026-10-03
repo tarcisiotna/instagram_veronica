@@ -7,7 +7,8 @@
 - **SCRIPT**: Usar APENAS `modelo_instagram.py` ou criar HTML manualmente
 - **NOME DO ARQUIVO**: Gerar SEMPRE como `carousel.html`
 - **DIMENSÕES**: Manter HTML em 420px de largura (export scale para 1080px)
-- **FOTO SLIDE 1**: Usar foto ALEATÓRIA da pasta `Imagens/nanobanana/`
+- **FOTO SLIDE 1**: Usar foto da pasta `Imagens/nanobanana/` — **NUNCA repetir** a foto usada no carrossel anterior. Usar SEMPRE `imagem_capa.py` (`escolher_imagem_capa(tema="NOME-DO-TEMA")`), que registra as fotos usadas em `imagens_usadas.json` e escolhe automaticamente uma foto diferente
+- **VERIFICAR CAPA**: Antes de gerar, conferir `imagens_usadas.json` — a foto da capa de cada carrossel deve ser diferente
 - **DESIGN**: Adaptar conforme o assunto/tema informado
 - **IDENTIDADE MARCA**: Livre para usar guia da marca conforme necessidade
 - **CTA FINAL**: Sempre usar `CTA.png` como último slide (slide_8)

@@ -1,13 +1,12 @@
 import base64
-import random
 from pathlib import Path
+
+from imagem_capa import escolher_imagem_capa
 
 BASE_DIR = Path(__file__).parent
 
-# Imagens - Slide 1: foto aleatória da pasta nanobanana
-nanobanana_dir = BASE_DIR / "Imagens" / "nanobanana"
-nanobanana_imgs = list(nanobanana_dir.glob("*.jpeg"))
-img1_path = random.choice(nanobanana_imgs) if nanobanana_imgs else None
+# Imagens - Slide 1: foto da pasta nanobanana, sem repetir a última usada
+img1_path = escolher_imagem_capa(tema="nutricao-oncologica")
 
 # Slide 7 (CTA): sempre usar CTA.png
 img_cta_path = BASE_DIR / "Imagens" / "CTA" / "CTA.png"

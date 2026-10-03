@@ -1,7 +1,8 @@
 import base64
-import random
 from pathlib import Path
 import sys
+
+from imagem_capa import escolher_imagem_capa
 
 BASE_DIR = Path(__file__).parent
 
@@ -32,16 +33,6 @@ TOTAL_SLIDES = 8
 CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 
-PROFILE_IMAGES = [
-    str(BASE_DIR / "Imagens" / "nanobanana" / "936f4681-434d-4d17-af25-6ccc34f8846a.jpeg"),
-    str(BASE_DIR / "Imagens" / "nanobanana" / "08f51a8e-19df-415e-bbd0-d8e61192c9a7.jpeg"),
-    str(BASE_DIR / "Imagens" / "nanobanana" / "2f8f305b-55fa-42c6-ab75-2b258509ad9c.jpeg"),
-    str(BASE_DIR / "Imagens" / "nanobanana" / "7f6b31cf-bc56-42d5-9430-afc78d9b4534.jpeg"),
-    str(BASE_DIR / "Imagens" / "nanobanana" / "5caa0b8c-9fca-4b7d-8b58-fda5fa092f85.jpeg"),
-    str(BASE_DIR / "Imagens" / "nanobanana" / "5e3dd5f4-661b-4329-8496-92dc809e5c73.jpeg"),
-    str(BASE_DIR / "Imagens" / "nanobanana" / "5f649b35-80b6-48a1-9d3f-cea879b5f42d.jpeg"),
-]
-
 def load_image_base64(image_path):
     path = Path(image_path)
     if not path.exists():
@@ -52,13 +43,8 @@ def load_image_base64(image_path):
     b64 = base64.b64encode(path.read_bytes()).decode()
     return f"data:{mime};base64,{b64}"
 
-slide_images = []
-for img_path in PROFILE_IMAGES[:7]:
-    img_data = load_image_base64(img_path)
-    if img_data:
-        slide_images.append(img_data)
-
-profile_data_uri = random.choice(slide_images) if slide_images else None
+img1_path = escolher_imagem_capa(tema="mitos-verdades-nutricao-oncologica")
+profile_data_uri = load_image_base64(img1_path) if img1_path else None
 
 LOGO_IMAGES = [
     str(BASE_DIR / "Imagens" / "Sem fundo" / "1.png"),

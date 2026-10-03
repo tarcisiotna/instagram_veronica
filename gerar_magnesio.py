@@ -1,6 +1,7 @@
 import base64
-import random
 from pathlib import Path
+
+from imagem_capa import escolher_imagem_capa
 
 BASE_DIR = Path(__file__).parent
 
@@ -18,9 +19,7 @@ CONTACT_PHONE = "(81) 9 9864-5846"
 CONTACT_EMAIL = "veronicabomfim.nutri@gmail.com"
 TOTAL_SLIDES = 8
 
-nanobanana_dir = BASE_DIR / "Imagens" / "nanobanana"
-nanobanana_imgs = [p for p in list(nanobanana_dir.glob("*.jpeg")) + list(nanobanana_dir.glob("*.jpg")) if p.stat().st_size > 1_000_000]
-img1_path = random.choice(nanobanana_imgs) if nanobanana_imgs else None
+img1_path = escolher_imagem_capa(tema="magnesio-e-o-sono")
 
 cta_path = BASE_DIR / "Imagens" / "CTA" / "CTA.png"
 
