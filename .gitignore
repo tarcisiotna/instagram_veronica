@@ -16,6 +16,7 @@ slides/*/
 !slides/*/*.txt     # Legenda
 slides_veronica/
 Imagens/
+Imagens
 # Documento - exceto gerenciador
 Documento/*
 !Documento/
@@ -24,6 +25,9 @@ Documento/*
 # Ambiente
 .env
 .opencode/
+
+# Aprovação: HTML do e-mail é gerado pelo aprovacao.py
+aprovacoes/*-email.html
 
 # OS
 .DS_Store

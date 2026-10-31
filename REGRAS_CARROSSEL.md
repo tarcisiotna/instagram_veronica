@@ -137,7 +137,10 @@ file slides/NOME-DO-TEMA/slide_1.png
 # 6. Re-exportar o slide final
 # Atualizar contagem de slides se necessário
 
-# 7. Postar no Instagram!
+# 7. Preparar e enviar a aprovação por e-mail (regra 12)
+python3 aprovacao.py preparar NOME-DO-TEMA
+
+# 8. SÓ DEPOIS DA RESPOSTA "APROVAR": publicar no Instagram
 ```
 
 ### 11. 📊 BARRA DE PROGRESSO - PADRÃO OBRIGATÓRIO
@@ -185,3 +188,43 @@ A barra de progresso deve seguir este padrão em TODOS os carrosséis:
 - **Visibilidade CTA**: Barra deve ter bom contraste — verificar em background escuro
 
 **VIOLAÇÃO DESTAS REGRAS = SLIDES NÃO FUNCIONAM NO INSTAGRAM**
+
+---
+
+### 12. 📧 APROVAÇÃO POR E-MAIL - OBRIGATÓRIA ANTES DE PUBLICAR
+
+**Nenhum carrossel vai para o Instagram sem aprovação por e-mail.**
+
+O fluxo é sempre este, nesta ordem, sem atalhos:
+
+```
+1. PLANEJAR      → roteiro slide a slide, fontes verificadas, foto da capa
+2. CONSTRUIR     → gerar HTML, exportar PNG, escrever legenda
+3. APROVAR       → enviar e-mail com os slides + legenda
+4. AGUARDAR      → esperar a resposta
+5. PUBLICAR      → só com "APROVAR"
+```
+
+**Regras:**
+
+- **Nunca publicar** sem ter recebido `APROVAR` em resposta ao e-mail de aprovação
+- O e-mail vai para `veronicabomfim.nutri@gmail.com`, assunto `[Aprovação] <título>`
+- O e-mail leva os slides embutidos (via URL pública) + a legenda completa + as duas instruções de resposta
+- **Nada é criado na API do Instagram antes da aprovação** — containers expiram em 24h, então eles nascem só no momento do publish
+- Resposta `APROVAR` → publicar e registrar com `python3 aprovacao.py publicar`
+- Resposta `REJEITAR` + motivo → **não publicar**, corrigir os slides e reiniciar do passo 3
+- Sem resposta ou resposta ambígua → o post continua `pendente`, não publicar
+
+**Comandos:**
+
+```bash
+python3 aprovacao.py preparar NOME-DO-TEMA    # sobe slides + gera o e-mail
+python3 aprovacao.py listar                   # o que está pendente
+python3 aprovacao.py ver NOME-DO-TEMA         # estado completo + legenda
+python3 aprovacao.py marcar NOME-DO-TEMA aprovado|rejeitado
+python3 aprovacao.py publicar NOME-DO-TEMA --media-id ID --permalink URL
+```
+
+**Referência completa**: `FLUXO_APROVACAO.md`
+
+**VIOLAÇÃO DESTA REGRA = POST PUBLICADO SEM AUTORIZAÇÃO**
