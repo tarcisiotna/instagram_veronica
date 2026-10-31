@@ -24,7 +24,7 @@ def escolher_imagem_capa(tema=None):
     """
     nanobanana_dir = BASE_DIR / "Imagens" / "nanobanana"
     imgs = sorted(
-        [p for p in list(nanobanana_dir.glob("*.jpeg")) + list(nanobanana_dir.glob("*.jpg")) if p.stat().st_size > 1_000_000],
+        [p for p in list(nanobanana_dir.glob("*.jpeg")) + list(nanobanana_dir.glob("*.jpg")) if p.stat().st_size > 50_000],
         key=lambda p: p.name,
     )
     if not imgs:
