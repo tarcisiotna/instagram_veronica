@@ -1,0 +1,100 @@
+{
+  "slug": "novembro-azul",
+  "tipo": "carousel",
+  "titulo": "Novembro Azul: cuidar da próstata começa antes do exame",
+  "legenda": "📷 @veronicabomfim.nutri\n\nNovembro Azul: cuidar da próstata começa antes do exame\n\n📌 Descrição:\nO câncer de próstata é o tumor mais comum entre homens brasileiros — e também um dos mais silenciosos. Na fase inicial, quase nunca dá sintoma, e é justamente por isso que a campanha existe: para que o cuidado comece antes do exame e antes do medo. Neste carrossel, explico por que o Novembro Azul importa, quem precisa olhar com mais atenção, o que a evidência realmente diz sobre nutrição e próstata e o que muda no corpo quando o tratamento é hormonal.\n\n📝 Resumo:\n• O INCA estima 77.920 casos novos de câncer de próstata por ano no Brasil no triênio 2026–2028 — 30,5% de todos os cânceres em homens, excluindo pele não melanoma\n• Idade (9 em cada 10 diagnósticos após os 55 anos), histórico familiar, maior incidência em homens negros e excesso de peso estão entre os fatores que pedem atenção\n• Não existe alimento que previna câncer de próstata; o que aparece com força na literatura é a gordura corporal, associada a formas mais avançadas da doença\n• No tratamento hormonal, o corpo ganha gordura e perde massa muscular já nos primeiros meses — proteína adequada, treino de força e acompanhamento nutricional fazem diferença\n\n📚 Fontes:\nINCA — Estimativa 2026–2028: incidência de câncer no Brasil\nMinistério da Saúde — Documento Orientador Novembro Azul 2026 e Nota Técnica nº 9/2023 (rastreamento)\nWCRF/AICR — Diet, Nutrition, Physical Activity and Cancer: a Global Perspective (2018)\nSBNO — Sociedade Brasileira de Nutrição Oncológica\nESPEN — European Society for Clinical Nutrition and Metabolism\n\n🏷️ Hashtags:\n#novembroazul #saudedohomem #cancerdeprostata #nutricao #nutricaooncologica #prevencao #diagnosticoprecoce #alimentacaosaudavel #saude #veronicabomfim #recife\n\n📞 Contato:\n📱 (81) 9 9864-5846\n📧 veronicabomfim.nutri@gmail.com\n📸 @veronicabomfim.nutri\n🌐 https://veronicabomfimnutriweb.pages.dev/\n",
+  "slides_dir": "slides/novembro-azul",
+  "total_slides": 9,
+  "criado_em": "2026-11-02T19:36:27-03:00",
+  "imagens": [
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_1.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_2.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_3.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_4.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_5.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_6.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_7.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_8.png",
+    "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/master/publicado/novembro-azul/slide_9.png"
+  ],
+  "status": "publicado",
+  "email": {
+    "para": "veronicabomfim.nutri@gmail.com",
+    "assunto": "[Aprovação] Novembro Azul: cuidar da próstata começa antes do exame",
+    "thread_id": "1a19e6a768d54253",
+    "message_id": "1a19e7ffb9e8716e"
+  },
+  "historico": [
+    {
+      "em": "2026-11-02T19:37:11-03:00",
+      "evento": "preparado",
+      "detalhe": "9 carousel(s) enviados para hospedagem"
+    },
+    {
+      "em": "2026-11-02T19:39:16-03:00",
+      "evento": "status",
+      "detalhe": "pendente → pendente"
+    },
+    {
+      "em": "2026-11-02T19:51:11-03:00",
+      "evento": "status",
+      "detalhe": "pendente → pendente"
+    },
+    {
+      "em": "2026-11-02T20:06:25-03:00",
+      "evento": "status",
+      "detalhe": "pendente → aprovado"
+    },
+    {
+      "em": "2026-11-02T20:06:25-03:00",
+      "evento": "vigia",
+      "detalhe": "resposta 1a19e7ffb9e8716e → aprovado"
+    },
+    {
+      "em": "2026-11-02T20:29:09-03:00",
+      "evento": "publicacao",
+      "detalhe": "tentativa 2 falhou: INSTAGRAM_CREATE_CAROUSEL_CONTAINER: Invalid parameter in carousel request. This may indicate an issue with one of the child containers or media items. Original error: Invalid parameter"
+    },
+    {
+      "em": "2026-11-02T20:34:34-03:00",
+      "evento": "publicacao",
+      "detalhe": "tentativa 3 falhou: INSTAGRAM_CREATE_CAROUSEL_CONTAINER: Invalid parameter in carousel request. This may indicate an issue with one of the child containers or media items. Original error: Invalid parameter"
+    },
+    {
+      "em": "2026-11-02T20:40:01-03:00",
+      "evento": "publicado",
+      "detalhe": "https://www.instagram.com/p/DfQggizDqnt/"
+    }
+  ],
+  "vigia": {
+    "ultima_verificacao": "2026-11-02T20:06:25-03:00",
+    "verificacoes": 5,
+    "ultimo_message_id": "1a19e7ffb9e8716e",
+    "erro": null,
+    "resposta_id": "1a19e7ffb9e8716e",
+    "resultado": "aprovado",
+    "motivo": ""
+  },
+  "aprovado_em": "2026-11-02T20:06:25-03:00",
+  "publicacao": {
+    "fase": "publicado",
+    "media_id": "17889527193485354",
+    "permalink": "https://www.instagram.com/p/DfQggizDqnt/",
+    "publicado_em": "2026-11-02T20:40:01-03:00",
+    "iniciado_em": "2026-11-02T20:27:33-03:00",
+    "tentativas": 4,
+    "erro": null,
+    "criacao_id": "17889527193485354",
+    "filhos": [
+      "18100010507433335",
+      "18122658928941283",
+      "18106798151369754",
+      "18041401091646900",
+      "17873224569642333",
+      "17924203932459771",
+      "17876819379637713",
+      "18118562732104275",
+      "18146254570580105"
+    ]
+  }
+}

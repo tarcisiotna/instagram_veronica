@@ -19,7 +19,8 @@
   "email": {
     "para": "veronicabomfim.nutri@gmail.com",
     "assunto": "[Aprovação] [TESTE] Emagreceu sem querer durante o tratamento?",
-    "thread_id": "1a19443c020da1a5"
+    "thread_id": "1a19443c020da1a5",
+    "message_id": "1a19443c020da1a5"
   },
   "historico": [
     {
@@ -31,6 +32,27 @@
       "em": "2026-10-31T20:20:35-03:00",
       "evento": "status",
       "detalhe": "pendente → cancelado envio de teste de renderização; post já publicado em 31/10"
+    },
+    {
+      "em": "2026-11-01T18:03:06-03:00",
+      "evento": "status",
+      "detalhe": "cancelado → pendente Recuperando aprovação de 31/10"
+    },
+    {
+      "em": "2026-11-02T19:51:11-03:00",
+      "evento": "status",
+      "detalhe": "pendente → pendente"
+    },
+    {
+      "em": "2026-11-02T20:48:48-03:00",
+      "evento": "status",
+      "detalhe": "pendente → cancelado Post já publicado em 31/10 (/p/DfLTAUsictv/) com a mesma legenda — cancelado para evitar publicação duplicada pelo vigia"
     }
-  ]
+  ],
+  "vigia": {
+    "ultima_verificacao": "2026-11-02T20:44:26-03:00",
+    "verificacoes": 12,
+    "ultimo_message_id": "1a19443c020da1a5",
+    "erro": null
+  }
 }

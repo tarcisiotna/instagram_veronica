@@ -1,0 +1,11 @@
+[Unit]
+Description=Vigia da aprovação por e-mail — Instagram Verônica
+Documentation=file://@DIR@/FLUXO_APROVACAO.md
+
+[Service]
+Type=oneshot
+WorkingDirectory=@DIR@
+ExecStart=/usr/bin/python3 @DIR@/vigia_aprovacao.py --once --silencioso
+# O publish do Instagram pode esperar até 5 min pelo container ficar pronto.
+TimeoutStartSec=900
+Nice=10

@@ -141,6 +141,7 @@ file slides/NOME-DO-TEMA/slide_1.png
 python3 aprovacao.py preparar NOME-DO-TEMA
 
 # 8. SÓ DEPOIS DA RESPOSTA "APROVAR": publicar no Instagram
+# (automático: o vigia publica ao detectar o APROVAR no e-mail)
 ```
 
 ### 11. 📊 BARRA DE PROGRESSO - PADRÃO OBRIGATÓRIO
@@ -211,7 +212,7 @@ O fluxo é sempre este, nesta ordem, sem atalhos:
 - O e-mail vai para `veronicabomfim.nutri@gmail.com`, assunto `[Aprovação] <título>`
 - O e-mail leva os slides embutidos (via URL pública) + a legenda completa + as duas instruções de resposta
 - **Nada é criado na API do Instagram antes da aprovação** — containers expiram em 24h, então eles nascem só no momento do publish
-- Resposta `APROVAR` → publicar e registrar com `python3 aprovacao.py publicar`
+- Resposta `APROVAR` → o vigia publica automaticamente e registra `media_id`/`permalink`
 - Resposta `REJEITAR` + motivo → **não publicar**, corrigir os slides e reiniciar do passo 3
 - Sem resposta ou resposta ambígua → o post continua `pendente`, não publicar
 
@@ -222,6 +223,7 @@ python3 aprovacao.py preparar NOME-DO-TEMA    # sobe slides + gera o e-mail
 python3 aprovacao.py listar                   # o que está pendente
 python3 aprovacao.py ver NOME-DO-TEMA         # estado completo + legenda
 python3 aprovacao.py marcar NOME-DO-TEMA aprovado|rejeitado
+python3 publicar_instagram.py NOME-DO-TEMA    # publicação manual (normalmente automática)
 python3 aprovacao.py publicar NOME-DO-TEMA --media-id ID --permalink URL
 ```
 

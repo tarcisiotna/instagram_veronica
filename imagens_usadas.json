@@ -1,7 +1,6 @@
 {
   "usadas": [
-    "2.jpeg",
-    "4.jpeg"
+    "1.jpeg"
   ],
   "historico": [
     {
@@ -11,6 +10,18 @@
     {
       "imagem": "4.jpeg",
       "tema": "perda-peso-onco"
+    },
+    {
+      "imagem": "1.jpeg",
+      "tema": "exemplo-quote-card"
+    },
+    {
+      "imagem": "3.jpg",
+      "tema": "teste-logo"
+    },
+    {
+      "imagem": "1.jpeg",
+      "tema": "novembro-azul"
     }
   ]
 }

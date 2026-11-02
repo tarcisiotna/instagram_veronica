@@ -13,8 +13,8 @@ Leia antes de qualquer tarefa:
 1. **Planejar** — roteiro slide a slide, fontes verificadas (INCA / SBNO / ESPEN), foto da capa via `imagem_capa.py`
 2. **Construir** — gerar o HTML, exportar com `export_veronica_node.js`, escrever `legenda.txt`
 3. **Enviar e-mail de aprovação** — `python3 aprovacao.py preparar <tema>` e enviar via Gmail
-4. **Aguardar** — ler a resposta do e-mail
-5. **Publicar** — **somente** após resposta `APROVAR`
+4. **Aguardar** — o `vigia_aprovacao.py` lê a resposta a cada 5 min (veja `FLUXO_APROVACAO.md`)
+5. **Publicar** — **automático** pelo vigia após resposta `APROVAR`; manual com `python3 publicar_instagram.py <tema>` se precisar
 
 ## Proibições
 
@@ -23,6 +23,9 @@ Leia antes de qualquer tarefa:
 - Nunca publicar número/estatística sem fonte verificável.
 - Nunca repetir a foto da capa do carrossel anterior.
 - Nunca incluir barra de progresso no HTML — o export injeta.
+- Publicar pela Graph API via `COMPOSIO_PROXY_EXECUTE` — as tools prontas de
+  carrossel do Composio falham com *"Invalid parameter in carousel request"*.
+- Legenda longa vai no corpo JSON do POST, nunca na query string do proxy.
 
 ## Conta
 

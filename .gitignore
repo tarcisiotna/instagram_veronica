@@ -17,10 +17,17 @@ slides/*/
 slides_veronica/
 Imagens/
 Imagens
+# Posts - só código e legenda; as imagens ficam em publicado/
+posts/*/*.png
+posts/*/*.jpg
+posts/*/*.jpeg
 # Documento - exceto gerenciador
 Documento/*
 !Documento/
 !Documento/gerenciador_ideias.html
+
+# Mídia publicada (hospedagem pública via raw.githubusercontent.com)
+# NÃO ignorar: publicado/ precisa ser versionado para virar URL pública.
 
 # Ambiente
 .env
@@ -28,6 +35,10 @@ Documento/*
 
 # Aprovação: HTML do e-mail é gerado pelo aprovacao.py
 aprovacoes/*-email.html
+# Log do vigia de aprovação (gerado a cada verificação)
+aprovacoes/vigia.log
+# Trava de execução do vigia (runtime)
+aprovacoes/.vigia.lock
 
 # OS
 .DS_Store

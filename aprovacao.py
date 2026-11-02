@@ -19,15 +19,24 @@ Uso:
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
 APROV_DIR = BASE_DIR / "aprovacoes"
 SLIDES_ROOT = BASE_DIR / "slides"
+POSTS_ROOT = BASE_DIR / "posts"
 CATBOX_URL = "https://catbox.moe/user/api.php"
+
+# Hospedagem pública das mídias: o repositório GitHub precisa estar PÚBLICO
+# para o Gmail (proxy de imagens) e o Instagram baixarem os arquivos.
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica"
+GITHUB_BRANCH = "master"
+MEDIA_DIR = BASE_DIR / "publicado"
 
 EMAIL_DESTINO_PADRAO = "veronicabomfim.nutri@gmail.com"
 HANDLE = "@veronicabomfim.nutri"
@@ -88,8 +97,81 @@ def slides_do_tema(slug):
     return sorted(arquivos, key=numero)
 
 
+def midia_do_tema(slug):
+    """Detecta se o tema é carrossel (slides/) ou post único (posts/).
+
+    Retorna (lista_de_imagens, tipo) onde tipo é "carousel" ou "post".
+    Para carrossel: lista de slide_*.png ordenada.
+    Para post único: lista com um único post.png.
+    """
+    # 1. Tenta carrossel
+    pasta_slides = SLIDES_ROOT / slug
+    if pasta_slides.is_dir():
+        arquivos = list(pasta_slides.glob("slide_*.png"))
+        if arquivos:
+
+            def numero(p):
+                m = re.search(r"slide_(\d+)\.png$", p.name)
+                return int(m.group(1)) if m else 0
+
+            return sorted(arquivos, key=numero), "carousel"
+
+    # 2. Tenta post único
+    pasta_post = POSTS_ROOT / slug
+    if pasta_post.is_dir():
+        post_png = pasta_post / "post.png"
+        if post_png.exists():
+            return [post_png], "post"
+
+    raise SystemExit(
+        f"❌ Nenhuma mídia encontrada para '{slug}' "
+        f"(esperado slides/{slug}/slide_*.png ou posts/{slug}/post.png)"
+    )
+
+
+def _git(*args, timeout=120):
+    """Executa um comando git no repositório do projeto."""
+    return subprocess.run(
+        ["git", "-C", str(BASE_DIR), *args],
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+
+
+def upload_github(caminho, slug, branch=GITHUB_BRANCH):
+    """Publica a mídia no repositório GitHub público e devolve a URL raw.
+
+    O arquivo é copiado para `publicado/<slug>/`, versionado e enviado para o
+    GitHub. A URL raw serve o arquivo para o Gmail e para o Instagram.
+    """
+    destino_dir = MEDIA_DIR / slug
+    destino_dir.mkdir(parents=True, exist_ok=True)
+    destino = destino_dir / caminho.name
+    shutil.copy2(caminho, destino)
+    rel = destino.relative_to(BASE_DIR).as_posix()
+
+    add = _git("add", "--", rel)
+    if add.returncode != 0:
+        raise RuntimeError(f"git add falhou: {add.stderr.strip()}")
+
+    status = _git("status", "--porcelain", "--", rel)
+    if status.stdout.strip():
+        commit = _git("commit", "-m", f"midia: {slug}/{caminho.name}", "--", rel)
+        if commit.returncode != 0:
+            raise RuntimeError(
+                f"git commit falhou: {commit.stderr.strip() or commit.stdout.strip()}"
+            )
+
+    push = _git("push", "origin", branch)
+    if push.returncode != 0:
+        raise RuntimeError(f"git push falhou: {push.stderr.strip()}")
+
+    return f"{GITHUB_RAW_BASE}/{branch}/{rel}"
+
+
 def upload_catbox(caminho, tentativas=3):
-    """Sobe um arquivo para o catbox.moe e devolve a URL pública."""
+    """Sobe um arquivo para o catbox.moe e devolve a URL pública (fallback)."""
     erro = None
     for _ in range(tentativas):
         try:
@@ -115,7 +197,72 @@ def upload_catbox(caminho, tentativas=3):
             erro = url or saida.stderr.strip()
         except Exception as exc:  # noqa: BLE001
             erro = str(exc)
-    raise SystemExit(f"❌ Falha ao subir {caminho.name}: {erro}")
+    raise RuntimeError(f"Falha ao subir {caminho.name}: {erro}")
+
+
+def validar_url_publica(url, tentativas=5, espera=4):
+    """Confere se a URL pública devolve conteúdo (protege contra arquivo vazio)."""
+    erro = None
+    for _ in range(tentativas):
+        try:
+            saida = subprocess.run(
+                [
+                    "curl",
+                    "-s",
+                    "-L",
+                    "-o",
+                    "/dev/null",
+                    "-w",
+                    "%{http_code} %{size_download}",
+                    "-m",
+                    "60",
+                    url,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=90,
+            )
+            partes = (saida.stdout or "").split()
+            codigo = partes[0] if partes else "000"
+            tamanho = int(partes[1]) if len(partes) > 1 else 0
+            if codigo == "200" and tamanho > 0:
+                return True
+            erro = f"HTTP {codigo}, {tamanho} bytes"
+        except Exception as exc:  # noqa: BLE001
+            erro = str(exc)
+        time.sleep(espera)
+    raise RuntimeError(f"URL pública não devolve imagem ({erro}): {url}")
+
+
+def upload_publico(caminho, slug):
+    """Publica a mídia e devolve a URL pública.
+
+    Ordem: GitHub (principal) -> catbox (fallback). Em ambos os casos a URL é
+    validada: se o host devolver arquivo vazio, a publicação é considerada
+    falha em vez de gerar link quebrado.
+    """
+    erros = []
+
+    try:
+        url = upload_github(caminho, slug)
+        validar_url_publica(url)
+        return url
+    except Exception as exc:  # noqa: BLE001
+        erros.append(f"GitHub: {exc}")
+        print(f"⚠️  GitHub indisponível ({exc}) — trying catbox...")
+
+    try:
+        url = upload_catbox(caminho)
+        validar_url_publica(url)
+        return url
+    except Exception as exc:  # noqa: BLE001
+        erros.append(f"catbox: {exc}")
+
+    raise SystemExit(
+        "❌ Não foi possível publicar a mídia em nenhum host:\n  - "
+        + "\n  - ".join(erros)
+    )
+
 
 
 def extrair_titulo(legenda):
@@ -146,10 +293,14 @@ def extrair_legenda_instagram(legenda):
 def gerar_html_email(dados):
     imagens = dados["imagens"]
     total = len(imagens)
+    tipo = dados.get("tipo", "carousel")
 
     blocos = []
     for i, url in enumerate(imagens, start=1):
-        rotulo = "CTA" if i == total else f"Slide {i}"
+        if total == 1:
+            rotulo = "Post"
+        else:
+            rotulo = "CTA" if i == total else f"Slide {i}"
         blocos.append(
             f'<td width="50%" style="padding:6px;vertical-align:top;">'
             f'<div style="font:600 11px Arial,sans-serif;color:#8A8580;'
@@ -166,6 +317,8 @@ def gerar_html_email(dados):
 
     legenda = extrair_legenda_instagram(dados["legenda"]).replace("<", "&lt;")
     hashtags = len(re.findall(r"#\w+", dados["legenda"]))
+    unidade = "post" if tipo == "post" else "slides"
+    contagem = f"{total} {unidade}"
 
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -180,7 +333,7 @@ def gerar_html_email(dados):
       {dados['titulo']}
     </div>
     <div style="font:400 12px Arial,sans-serif;color:rgba(255,255,255,0.65);padding-top:10px;">
-      {HANDLE} &nbsp;·&nbsp; {total} slides &nbsp;·&nbsp; {len(dados['legenda'])} caracteres de legenda &nbsp;·&nbsp; {hashtags} hashtags
+      {HANDLE} &nbsp;·&nbsp; {contagem} &nbsp;·&nbsp; {len(dados['legenda'])} caracteres de legenda &nbsp;·&nbsp; {hashtags} hashtags
     </div>
   </div>
 
@@ -246,37 +399,46 @@ def gerar_html_email(dados):
 
 def cmd_preparar(args):
     slug = args.slug
-    pasta = SLIDES_ROOT / slug
-    legenda_path = pasta / "legenda.txt"
-    if not legenda_path.exists():
-        raise SystemExit(f"❌ Legenda não encontrada: {legenda_path}")
+    legenda_path = POSTS_ROOT / slug / "legenda.txt"
+    slides_legenda_path = SLIDES_ROOT / slug / "legenda.txt"
 
-    slides = slides_do_tema(slug)
-    legenda = legenda_path.read_text(encoding="utf-8")
+    # Escolhe a legenda: posts/ primeiro (post único), depois slides/ (carrossel)
+    if legenda_path.exists():
+        pasta_midia = POSTS_ROOT / slug
+        legenda = legenda_path.read_text(encoding="utf-8")
+    elif slides_legenda_path.exists():
+        pasta_midia = SLIDES_ROOT / slug
+        legenda = slides_legenda_path.read_text(encoding="utf-8")
+    else:
+        raise SystemExit(f"❌ Legenda não encontrada para '{slug}'")
+
+    midia, tipo = midia_do_tema(slug)
+    total = len(midia)
 
     dados = carregar(slug) or {}
     dados.update(
         {
             "slug": slug,
+            "tipo": tipo,
             "titulo": args.titulo or extrair_titulo(legenda),
             "legenda": legenda,
-            "slides_dir": str(pasta.relative_to(BASE_DIR)),
-            "total_slides": len(slides),
+            "slides_dir": str(pasta_midia.relative_to(BASE_DIR)),
+            "total_slides": total,
         }
     )
     dados.setdefault("criado_em", agora())
 
     urls_antigas = dados.get("imagens") or []
-    reutilizar = len(urls_antigas) == len(slides) and not args.reupload
+    reutilizar = len(urls_antigas) == total and not args.reupload
 
     if reutilizar:
         dados["imagens"] = urls_antigas
         print(f"♻️  Reaproveitando {len(urls_antigas)} URLs já enviadas")
     else:
         urls = []
-        for i, slide in enumerate(slides, start=1):
-            print(f"⬆️  slide {i}/{len(slides)}: {slide.name} ... ", end="", flush=True)
-            url = upload_catbox(slide)
+        for i, slide in enumerate(midia, start=1):
+            print(f"⬆️  {tipo} {i}/{total}: {slide.name} ... ", end="", flush=True)
+            url = upload_publico(slide, slug)
             print(url)
             urls.append(url)
         dados["imagens"] = urls
@@ -285,7 +447,7 @@ def cmd_preparar(args):
     dados.setdefault("email", {})
     dados["email"]["para"] = args.para or dados["email"].get("para") or EMAIL_DESTINO_PADRAO
     dados["email"]["assunto"] = f"[Aprovação] {dados['titulo']}"
-    registrar_evento(dados, "preparado", f"{len(slides)} slides enviados para hospedagem")
+    registrar_evento(dados, "preparado", f"{total} {tipo}(s) enviados para hospedagem")
 
     caminho = salvar(dados)
 
@@ -298,9 +460,10 @@ def cmd_preparar(args):
     print(f"📬 Destino: {dados['email']['para']}")
     print(f"🏷️  Assunto: {dados['email']['assunto']}")
     print(f"📊 Status: {dados['status']}")
+    print(f"📁 Tipo: {tipo}")
     print()
-    print("Próximo passo: enviar o e-mail via GMAIL_SEND_EMAIL com o HTML acima,")
-    print("depois rodar:  python3 aprovacao.py marcar %s pendente --message-id <id>" % slug)
+    print("Próximo passo: enviar o e-mail via Gmail com o HTML acima,")
+    print("depois rodar:  python3 aprovacao.py marcar %s pendente --thread-id <id>" % slug)
 
 
 def cmd_listar(args):
