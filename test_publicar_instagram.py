@@ -419,5 +419,58 @@ class TravaTest(unittest.TestCase):
                         self.assertFalse(segunda)
 
 
+class FluxoCompletoTest(unittest.TestCase):
+    """Ciclo real: tema aprovado → publicação → status `publicado`."""
+
+    def test_tema_aprovado_vira_publicado(self):
+        import json
+        import shutil
+        import tempfile
+        from pathlib import Path
+
+        import aprovacao
+
+        base = Path(tempfile.mkdtemp())
+        (base / "aprovacoes").mkdir()
+        self.addCleanup(shutil.rmtree, base, True)
+
+        dados = dados_base(slug="teste-e2e", status="aprovado")
+        (base / "aprovacoes" / "teste-e2e.json").write_text(
+            json.dumps(dados), encoding="utf-8"
+        )
+
+        class Publicacao:
+            def __call__(self, dados, ao_progredir=None):
+                return {
+                    "fase": "publicado",
+                    "media_id": "m1",
+                    "permalink": "https://instagram.com/p/teste/",
+                    "publicado_em": "2026-11-02T21:00:00-03:00",
+                }
+
+        with mock.patch.object(vigia_aprovacao, "BASE_DIR", base), mock.patch.object(
+            vigia_aprovacao, "LOG_PATH", base / "aprovacoes" / "vigia.log"
+        ), mock.patch.object(
+            vigia_aprovacao, "CAMINHO_TRAVA", base / "aprovacoes" / ".vigia.lock"
+        ), mock.patch.object(
+            aprovacao, "APROV_DIR", base / "aprovacoes"
+        ), mock.patch.object(
+            vigia_aprovacao.publicar_instagram, "publicar", Publicacao()
+        ), mock.patch.object(
+            vigia_aprovacao, "notificar"
+        ), mock.patch.object(
+            vigia_aprovacao, "_registrar_topico"
+        ):
+            ok = vigia_aprovacao.verificar_todas(None, silencioso=True)
+
+        final = json.loads(
+            (base / "aprovacoes" / "teste-e2e.json").read_text(encoding="utf-8")
+        )
+        self.assertTrue(ok)
+        self.assertEqual(final["status"], "publicado")
+        self.assertEqual(final["publicacao"]["media_id"], "m1")
+        self.assertEqual(final["publicacao"]["tentativas"], 1)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
