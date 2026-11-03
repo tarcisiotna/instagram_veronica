@@ -216,6 +216,13 @@ O fluxo é sempre este, nesta ordem, sem atalhos:
 - Resposta `REJEITAR` + motivo → **não publicar**, corrigir os slides e reiniciar do passo 3
 - Sem resposta ou resposta ambígua → o post continua `pendente`, não publicar
 
+**Segurança da aprovação (falha sempre para o lado seguro):**
+
+- Só `veronicabomfim.nutri@gmail.com` aprova — resposta de outro remetente é ignorada
+- Só mensagens **depois** do e-mail de aprovação contam; sem e-mail identificado, nada é considerado resposta
+- "APROVAR" precisa ser inequívoco: dúvida, negação ou adiamento ("APROVAR depois", "APROVAR?") **não** aprovam
+- O e-mail de aprovação não pode ser enviado para outro endereço
+
 **Comandos:**
 
 ```bash

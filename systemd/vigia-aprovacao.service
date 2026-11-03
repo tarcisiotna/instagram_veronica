@@ -9,3 +9,25 @@ ExecStart=/usr/bin/python3 @DIR@/vigia_aprovacao.py --once --silencioso
 # O publish do Instagram pode esperar até 5 min pelo container ficar pronto.
 TimeoutStartSec=900
 Nice=10
+
+# --- Hardening -----------------------------------------------------------
+# O vigia lê a chave do Composio (em ~/.config/opencode) e escreve só no
+# diretório do projeto. Nada mais precisa ser gravado.
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=full
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadWritePaths=@DIR@

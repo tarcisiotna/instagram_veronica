@@ -27,6 +27,7 @@ import argparse
 import base64
 import fcntl
 import json
+import os
 import re
 import subprocess
 import sys
@@ -44,13 +45,32 @@ INTERVALO_PADRAO = 300
 TENTATIVAS_REDE = 2
 MAX_TENTATIVAS_PUBLICACAO = 5
 
+# Só este endereço pode aprovar (e só ele recebe o e-mail de aprovação).
+# Qualquer outra pessoa no thread — ou um e-mail reencaminhado — não publica
+# nada. A regra do projeto é "nunca publicar sem aprovação explícita".
+EMAIL_DONO = os.environ.get(
+    "APROVACAO_EMAIL", "veronicabomfim.nutri@gmail.com"
+).strip().lower()
+
+# Emergency escape hatch (diagnóstico): aceita resposta de qualquer remetente.
+# Desligado por padrão — usar só se o proxy não entregar o cabeçalho From.
+ACEITAR_QUALQUER_REMETENTE = os.environ.get(
+    "APROVACAO_ACEITAR_REMETENTE", ""
+).strip().lower() in ("1", "true", "sim", "yes")
+
 # "Em ... escreveu:" / "On ... wrote:" — início da citação numa resposta
 RE_INICIO_CITACAO = re.compile(
     r"(?im)^\s*(em .{0,300}escreveu:.*|on .{0,300}wrote:.*|-{2,}\s*original message\s*-{2,}.*)\s*$"
 )
-RE_VEREDITO_INICIO = re.compile(
-    r"^\s*(?:[\"“'(\[]\s*)?(APROVAR|REJEITAR)\b", re.IGNORECASE
+RE_VEREDITO_LINHA = re.compile(r"^(APROVAR|REJEITAR)\b(.*)$", re.IGNORECASE)
+# Palavras que transformam "APROVAR" em adiamento, dúvida ou negação.
+RE_BLOQUEIO_APROVAR = re.compile(
+    r"\b(depois|mais\s+tarde|futuro\w*|amanh[ãa]|quando|assim\s+que|logo|aguarde|"
+    r"retom\w+|volto|aviso|fal[oô]|vejo|n[ãa]o|nao|nunca|talvez|acho\s+que|"
+    r"ser[áa]|sera|preciso|falta|aguarda|retorno)\b",
+    re.IGNORECASE,
 )
+RE_EMAIL = re.compile(r"[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}", re.IGNORECASE)
 LIMITE_RESPOSTA_CURTA = 200  # sem veredito na 1ª linha, só vale resposta curta
 
 
@@ -192,6 +212,18 @@ def texto_da_mensagem(payload):
     return ""
 
 
+def _cabecalho(cabecalhos, nome):
+    """Valor de um cabeçalho do e-mail (From, Subject, ...)."""
+    return next(
+        (
+            h.get("value")
+            for h in cabecalhos
+            if (h.get("name") or "").lower() == nome.lower()
+        ),
+        "",
+    )
+
+
 def buscar_conteudo(message_id):
     """Corpo da mensagem.
 
@@ -200,19 +232,14 @@ def buscar_conteudo(message_id):
     cujo `snippet` traz o começo da resposta — exatamente onde fica o veredito.
     """
     assunto = ""
+    remetente = ""
     try:
         mensagem = gmail_api(
             f"/gmail/v1/users/me/messages/{message_id}", [("format", "full")]
         )
         cabecalhos = (mensagem.get("payload") or {}).get("headers") or []
-        assunto = next(
-            (
-                h.get("value")
-                for h in cabecalhos
-                if (h.get("name") or "").lower() == "subject"
-            ),
-            "",
-        )
+        assunto = _cabecalho(cabecalhos, "subject")
+        remetente = _cabecalho(cabecalhos, "from")
         texto = texto_da_mensagem(mensagem.get("payload") or {})
         if texto.strip():
             return {
@@ -220,6 +247,7 @@ def buscar_conteudo(message_id):
                 "messageText": texto,
                 "snippet": "",
                 "subject": assunto,
+                "remetente": remetente,
             }
     except RuntimeError:
         pass
@@ -228,15 +256,14 @@ def buscar_conteudo(message_id):
         f"/gmail/v1/users/me/messages/{message_id}", [("format", "metadata")]
     )
     cabecalhos = (meta.get("payload") or {}).get("headers") or []
-    assunto = assunto or next(
-        (h.get("value") for h in cabecalhos if (h.get("name") or "").lower() == "subject"),
-        "",
-    )
+    assunto = assunto or _cabecalho(cabecalhos, "subject")
+    remetente = remetente or _cabecalho(cabecalhos, "from")
     return {
         "messageId": meta.get("id") or message_id,
         "messageText": "",
         "snippet": meta.get("snippet") or "",
         "subject": assunto,
+        "remetente": remetente,
     }
 
 
@@ -276,6 +303,55 @@ def texto_limpo(mensagem):
     return texto.strip()
 
 
+def remetente_de(mensagem):
+    """Endereço de quem enviou a mensagem (cabeçalho From)."""
+    bruto = mensagem.get("remetente") or ""
+    achado = RE_EMAIL.search(bruto)
+    return achado.group(0).lower() if achado else ""
+
+
+def remetente_permitido(mensagem):
+    """Só a conta da proprietária pode aprovar.
+
+    Sem remetente legível a resposta é descartada (falha para o lado seguro):
+    melhor ficar pendente do que publicar sem aprovação explícita.
+    """
+    return remetente_de(mensagem) == EMAIL_DONO
+
+
+def _veredito_na_linha(linha):
+    """(veredito, resto) se a linha abre com APROVAR/REJEITAR; senão None."""
+    texto = linha.strip().strip("\"“”'‘’()[]{}").strip()
+    achado = RE_VEREDITO_LINHA.match(texto)
+    if not achado:
+        return None
+    return achado.group(1).upper(), achado.group(2).strip()
+
+
+def _aprovacao_e_confiavel(resto):
+    """APROVAR só vale quando não há dúvida, negação ou adiamento.
+
+    "APROVAR", "APROVAR, pode publicar!" e "Aprovar, obrigada" aprovam.
+    "APROVAR depois", "APROVAR?" e "não APROVAR" não aprovam — nesses casos
+    o post continua pendente.
+    """
+    if "?" in resto or "？" in resto:
+        return False
+    return not RE_BLOQUEIO_APROVAR.search(resto)
+
+
+def _resultado_do_veredito(veredito, resto, texto_completo):
+    if veredito == "APROVAR":
+        return "aprovado", ""
+    motivo = ""
+    achado = re.search(r"REJEITAR", texto_completo, re.IGNORECASE)
+    if achado:
+        motivo = re.sub(r"\s+", " ", texto_completo[achado.end() :]).strip(
+            " .:-,;–—"
+        )[:300]
+    return "rejeitado", motivo
+
+
 def classificar(mensagem):
     """Devolve (status, motivo) ou None se a mensagem não traz veredito.
 
@@ -292,46 +368,55 @@ def classificar(mensagem):
         return None
 
     junto = " ".join(linhas)
-    achado = RE_VEREDITO_INICIO.match(linhas[0])
-    if not achado:
-        # Sem veredito na primeira linha, só vale resposta curta e com o
-        # veredito abrindo alguma linha ("Oi!\nAPROVAR").
-        if len(junto) > LIMITE_RESPOSTA_CURTA:
-            return None
-        for linha in linhas[:5]:
-            achado = RE_VEREDITO_INICIO.match(linha)
-            if achado:
-                break
-        else:
-            return None
 
-    veredito = achado.group(1)
-    status = "aprovado" if veredito.upper() == "APROVAR" else "rejeitado"
-    motivo = ""
-    if status == "rejeitado":
-        posicao = junto.find(veredito)
-        resto = re.sub(r"\s+", " ", junto[posicao + len(veredito) :])
-        motivo = resto.strip(" .:-,;–—")[:300]
-    return status, motivo
+    achado = _veredito_na_linha(linhas[0])
+    if achado:
+        veredito, resto = achado
+        if veredito == "APROVAR" and not _aprovacao_e_confiavel(resto):
+            return None
+        return _resultado_do_veredito(veredito, resto, junto)
+
+    # Sem veredito na primeira linha, só vale resposta curta e com o
+    # veredito abrindo alguma linha ("Oi!\nAPROVAR").
+    if len(junto) > LIMITE_RESPOSTA_CURTA:
+        return None
+    for linha in linhas[:5]:
+        achado = _veredito_na_linha(linha)
+        if not achado:
+            continue
+        veredito, resto = achado
+        if veredito == "APROVAR" and not _aprovacao_e_confiavel(resto):
+            continue
+        return _resultado_do_veredito(veredito, resto, junto)
+    return None
 
 
 def indice_da_aprovacao(mensagens, dados):
     """Índice da mensagem do e-mail de aprovação; None se não achar.
 
-    O e-mail de aprovação é sempre a primeira mensagem do thread, então na
-    falta do `message_id` usamos a primeira mensagem que nós enviamos.
+    O e-mail de aprovação é a mensagem que **abriu** o thread. No Gmail, o id
+    do thread é o id da primeira mensagem — por isso o `thread_id` é a âncora
+    mais confiável. Sem ele, usamos a primeira mensagem, desde que seja nossa
+    (label SENT).
+
+    Atenção: `email.message_id` guarda o id da mensagem que carregou o
+    veredito (é o que o vigia grava ao marcar), e não serve como âncora.
+
+    Devolver None é sinal de "não identifico o e-mail": o chamador precisa
+    falhar para o lado seguro (não varrer o thread inteiro).
     """
-    email = dados.get("email") or {}
-    base_id = email.get("message_id")
-    if base_id:
-        for indice, mensagem in enumerate(mensagens):
-            if mensagem["messageId"] == base_id:
-                return indice
+    if not mensagens:
         return None
 
-    for indice, mensagem in enumerate(mensagens):
-        if "SENT" in mensagem["labelIds"]:
-            return indice
+    email = dados.get("email") or {}
+    thread_id = email.get("thread_id")
+    if thread_id:
+        for indice, mensagem in enumerate(mensagens):
+            if mensagem["messageId"] == thread_id and "SENT" in mensagem["labelIds"]:
+                return indice
+
+    if "SENT" in mensagens[0]["labelIds"]:
+        return 0
     return None
 
 
@@ -360,7 +445,9 @@ def _marcar(slug, status, message_id, motivo=""):
         message_id,
     ]
     if motivo:
-        comando += ["--detalhe", motivo]
+        # `--detalhe=<valor>`: o motivo vem do e-mail e não pode ser lido
+        # como opção pelo argparse (argument injection).
+        comando.append(f"--detalhe={motivo}")
     resultado = subprocess.run(
         comando, cwd=BASE_DIR, capture_output=True, text=True, timeout=60
     )
@@ -526,12 +613,23 @@ def verificar(slug, silencioso=False, dry_run=False, publicar=True):
 
     indice = indice_da_aprovacao(mensagens, dados)
     if indice is None:
-        # Sem referência do e-mail de aprovação: olha tudo. O classificador
-        # ignora a própria mensagem de aprovação, então não há falso positivo.
-        candidatas = mensagens
-        log(f"{slug}  ⚠️  e-mail de aprovação não identificado no thread", silencioso)
-    else:
-        candidatas = mensagens[indice + 1 :]
+        # Fail-safe: sem e-mail de aprovação identificado, nenhuma mensagem do
+        # thread vale como resposta. Varrer tudo permitiria que uma mensagem
+        # solta (ou o próprio e-mail de aprovação) virar aprovação.
+        _salvar_vigia(dados, dry_run=dry_run, erro="e-mail de aprovação não identificado")
+        log(
+            f"{slug}  ⚠️  e-mail de aprovação não identificado no thread — "
+            "nenhuma resposta é considereda (fail-safe)",
+            silencioso,
+        )
+        return False
+
+    # Só conta como resposta o que veio depois do e-mail de aprovação (e não
+    # antes dele no tempo).
+    limite = mensagens[indice].get("internalDate") or 0
+    candidatas = [
+        m for m in mensagens[indice + 1 :] if (m.get("internalDate") or 0) >= limite
+    ]
 
     vigia = dados.get("vigia") or {}
     ja_lida = vigia.get("resposta_id")
@@ -545,6 +643,13 @@ def verificar(slug, silencioso=False, dry_run=False, publicar=True):
             _salvar_vigia(dados, dry_run=dry_run, erro=str(erro)[:300])
             log(f"{slug}  ❌ {erro}", silencioso)
             return False
+        if not ACEITAR_QUALQUER_REMETENTE and not remetente_permitido(conteudo):
+            quem = remetente_de(conteudo) or "desconhecido"
+            log(
+                f"{slug}  ⚠️  resposta ignorada — remetente não autorizado ({quem})",
+                silencioso,
+            )
+            continue
         resultado = classificar(conteudo)
         if resultado:
             veredito = (conteudo, resultado)
@@ -698,10 +803,20 @@ def main():
         action="store_true",
         help="só marca o status; não publica no Instagram automaticamente",
     )
+    parser.add_argument(
+        "--aceitar-qualquer-remetente",
+        action="store_true",
+        help="diagnóstico: aceita aprovação de qualquer remetente do thread",
+    )
     args = parser.parse_args()
 
     if args.interval < 30:
         raise SystemExit("❌ --interval mínimo de 30 segundos")
+
+    global ACEITAR_QUALQUER_REMETENTE
+    if args.aceitar_qualquer_remetente:
+        ACEITAR_QUALQUER_REMETENTE = True
+        log("⚠️  aceitando aprovação de qualquer remetente do thread", args.silencioso)
 
     publicar = not args.sem_publicar
     slugs = [args.slug] if args.slug else None

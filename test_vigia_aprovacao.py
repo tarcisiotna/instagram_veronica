@@ -10,7 +10,12 @@ resposta. Se o vigia errar, um post vai para o Instagram sem aprovação.
 
 import unittest
 
-from vigia_aprovacao import classificar
+from vigia_aprovacao import (
+    EMAIL_DONO,
+    classificar,
+    indice_da_aprovacao,
+    remetente_permitido,
+)
 
 INSTRUCOES = (
     "<div>Responda só com a palavra <strong>APROVAR</strong> para publicar.</div>"
@@ -105,6 +110,80 @@ class ClassificadorTest(unittest.TestCase):
         self.assertEqual(
             classificar({"messageText": "", "snippet": snippet}), ("aprovado", "")
         )
+
+
+class AprovacaoAdiadaTest(unittest.TestCase):
+    """APROVAR com dúvida, negação ou adiamento não publica nada."""
+
+    def test_aprovar_depois_nao_aproveita(self):
+        self.assertIsNone(classificar(mensagem(f"<div>APROVAR depois</div>{CITACAO}")))
+
+    def test_aprovar_com_interrogacao_nao_aproveita(self):
+        self.assertIsNone(classificar(mensagem(f"<div>APROVAR?</div>{CITACAO}")))
+
+    def test_aprovar_negado_nao_aproveita(self):
+        self.assertIsNone(
+            classificar(mensagem(f"<div>APROVAR, não agora</div>{CITACAO}"))
+        )
+
+    def test_aprovar_para_depois_nao_aproveita(self):
+        self.assertIsNone(
+            classificar(mensagem(f"<div>Aprovar só mais tarde</div>{CITACAO}"))
+        )
+
+    def test_aprovar_com_certeza_aprova(self):
+        self.assertEqual(
+            classificar(mensagem(f"<div>APROVAR, pode publicar!</div>{CITACAO}")),
+            ("aprovado", ""),
+        )
+
+
+class RemetenteTest(unittest.TestCase):
+    """Só a conta da proprietária pode aprovar."""
+
+    def test_remetente_da_proprietaria_e_aceito(self):
+        self.assertTrue(
+            remetente_permitido({"remetente": f"Veronica Bomfim <{EMAIL_DONO}>"})
+        )
+
+    def test_outro_remetente_e_recusado(self):
+        self.assertFalse(
+            remetente_permitido({"remetente": "Alguem <alguem@example.com>"})
+        )
+
+    def test_sem_remetente_e_recusado(self):
+        self.assertFalse(remetente_permitido({}))
+
+
+class IndiceDaAprovacaoTest(unittest.TestCase):
+    """O e-mail de aprovação precisa ser identificado — senão, fail-safe."""
+
+    def thread(self):
+        return [
+            {"messageId": "aaaa1111", "labelIds": ["SENT"], "internalDate": 100},
+            {"messageId": "bbbb2222", "labelIds": ["INBOX"], "internalDate": 200},
+        ]
+
+    def test_usa_thread_id_registrado(self):
+        # No Gmail o id do thread é o id da primeira mensagem (o e-mail de
+        # aprovação). O message_id guardado é o da resposta — não serve de
+        # âncora.
+        dados = {"email": {"thread_id": "aaaa1111", "message_id": "bbbb2222"}}
+        self.assertEqual(indice_da_aprovacao(self.thread(), dados), 0)
+
+    def test_sem_thread_id_usa_a_primeira_mensagem(self):
+        self.assertEqual(indice_da_aprovacao(self.thread(), {}), 0)
+
+    def test_primeira_mensagem_de_outro_remetente_nao_serve(self):
+        mensagens = [
+            {"messageId": "aaaa1111", "labelIds": ["INBOX"], "internalDate": 100},
+            {"messageId": "bbbb2222", "labelIds": ["INBOX"], "internalDate": 200},
+        ]
+        self.assertIsNone(indice_da_aprovacao(mensagens, {}))
+
+    def test_thread_id_sem_correspondencia_usa_a_primeira(self):
+        dados = {"email": {"thread_id": "cccc3333"}}
+        self.assertEqual(indice_da_aprovacao(self.thread(), dados), 0)
 
 
 if __name__ == "__main__":

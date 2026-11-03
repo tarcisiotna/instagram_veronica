@@ -17,7 +17,9 @@ Uso:
 """
 
 import argparse
+import html
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -38,8 +40,41 @@ GITHUB_RAW_BASE = "https://raw.githubusercontent.com/tarcisiotna/instagram_veron
 GITHUB_BRANCH = "master"
 MEDIA_DIR = BASE_DIR / "publicado"
 
+# Remote esperado: protege contra subir a mídia para um repositório
+# inesperado (fork, repositório pessoal, URL errada no `origin`).
+GITHUB_REMOTE_ESPERADO = os.environ.get(
+    "GITHUB_REMOTE_ESPERADO", "git@github.com:tarcisiotna/instagram_veronica.git"
+).strip()
+
+# Enviar a mídia para o catbox (host público de terceiros) só com autorização
+# explícita: o arquivo fica disponível num serviço que não controlamos.
+ALLOW_CATBOX = os.environ.get("APROVACAO_ALLOW_CATBOX", "").strip().lower() in (
+    "1",
+    "true",
+    "sim",
+    "yes",
+)
+
 EMAIL_DESTINO_PADRAO = "veronicabomfim.nutri@gmail.com"
+# O e-mail de aprovação só pode ir para a conta da proprietária — e só a
+# resposta dela vale como aprovação (ver `vigia_aprovacao.py`).
+EMAIL_DONO = os.environ.get("APROVACAO_EMAIL", EMAIL_DESTINO_PADRAO).strip().lower()
 HANDLE = "@veronicabomfim.nutri"
+
+# Hosts de mídia aceitos. O e-mail de aprovação carrega as imagens direto no
+# cliente de e-mail: se a URL apontasse para um host de terceiro, o e-mail
+# viraria um rastreador (e a publicação usaria uma imagem não aprovada).
+HOSTS_MIDIA_PERMITIDOS = {
+    "raw.githubusercontent.com",
+    "catbox.moe",
+    "files.catbox.moe",
+    "litter.catbox.moe",
+}
+
+# Slug seguro: usado para montar caminhos e nomes de arquivo.
+RE_SLUG = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
+# IDs do Gmail são hexadecimais.
+RE_ID_GMAIL = re.compile(r"^[0-9a-f]{8,40}$")
 
 BRAND_PRIMARY = "#bf9566"
 BRAND_DARK = "#394233"
@@ -56,11 +91,39 @@ def agora():
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
+def url_midia_valida(url):
+    """True se a URL é https e o host é um dos hosts de mídia do projeto."""
+    if not isinstance(url, str) or not url.lower().startswith("https://"):
+        return False
+    partes = url.split("/")
+    if len(partes) < 4:
+        return False
+    host = partes[2].split("@")[-1].split(":")[0].lower()
+    return host in HOSTS_MIDIA_PERMITIDOS
+
+
+def slug_valido(slug):
+    """True se o slug pode virar caminho/nome de arquivo com segurança."""
+    return bool(RE_SLUG.match(slug or "")) and ".." not in slug
+
+
+def _exigir_slug(slug):
+    if not slug_valido(slug):
+        raise SystemExit(
+            f"❌ Slug inválido: '{slug}'\n"
+            "   Use apenas letras, números, ponto, hífen e underscore "
+            "(máx. 80 caracteres)."
+        )
+    return slug
+
+
 def arquivo_estado(slug):
     return APROV_DIR / f"{slug}.json"
 
 
 def carregar(slug):
+    if not slug_valido(slug):
+        return None
     caminho = arquivo_estado(slug)
     if not caminho.exists():
         return None
@@ -68,8 +131,9 @@ def carregar(slug):
 
 
 def salvar(dados):
+    slug = _exigir_slug(dados["slug"])
     APROV_DIR.mkdir(parents=True, exist_ok=True)
-    caminho = arquivo_estado(dados["slug"])
+    caminho = arquivo_estado(slug)
     caminho.write_text(
         json.dumps(dados, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
@@ -83,7 +147,7 @@ def registrar_evento(dados, evento, detalhe=""):
 
 
 def slides_do_tema(slug):
-    pasta = SLIDES_ROOT / slug
+    pasta = SLIDES_ROOT / _exigir_slug(slug)
     if not pasta.is_dir():
         raise SystemExit(f"❌ Pasta não encontrada: {pasta}")
     arquivos = list(pasta.glob("slide_*.png"))
@@ -104,6 +168,8 @@ def midia_do_tema(slug):
     Para carrossel: lista de slide_*.png ordenada.
     Para post único: lista com um único post.png.
     """
+    slug = _exigir_slug(slug)
+
     # 1. Tenta carrossel
     pasta_slides = SLIDES_ROOT / slug
     if pasta_slides.is_dir():
@@ -139,12 +205,32 @@ def _git(*args, timeout=120):
     )
 
 
+def _remote_confere():
+    """Confere que o `origin` é o repositório esperado antes de versionar mídia.
+
+    `upload_github` faz commit + push automático. Sem esta checagem, um remote
+    apontando para outro repositório (ou uma URL digitada errado) publica a
+    mídia do cliente em um lugar que ninguém revisou.
+    """
+    remoto = _git("remote", "get-url", "origin")
+    if remoto.returncode != 0:
+        raise RuntimeError("remote 'origin' não configurado")
+    atual = (remoto.stdout or "").strip()
+    if atual != GITHUB_REMOTE_ESPERADO:
+        raise RuntimeError(
+            f"remote 'origin' inesperado: '{atual}' (esperado '{GITHUB_REMOTE_ESPERADO}'). "
+            "Defina GITHUB_REMOTE_ESPERADO para confirmar outro repositório."
+        )
+    return atual
+
+
 def upload_github(caminho, slug, branch=GITHUB_BRANCH):
     """Publica a mídia no repositório GitHub público e devolve a URL raw.
 
     O arquivo é copiado para `publicado/<slug>/`, versionado e enviado para o
     GitHub. A URL raw serve o arquivo para o Gmail e para o Instagram.
     """
+    _remote_confere()
     destino_dir = MEDIA_DIR / slug
     destino_dir.mkdir(parents=True, exist_ok=True)
     destino = destino_dir / caminho.name
@@ -237,9 +323,10 @@ def validar_url_publica(url, tentativas=5, espera=4):
 def upload_publico(caminho, slug):
     """Publica a mídia e devolve a URL pública.
 
-    Ordem: GitHub (principal) -> catbox (fallback). Em ambos os casos a URL é
-    validada: se o host devolver arquivo vazio, a publicação é considerada
-    falha em vez de gerar link quebrado.
+    Ordem: GitHub (principal) -> catbox (fallback, só com
+    `APROVACAO_ALLOW_CATBOX=1`, porque é um host público de terceiros). Em
+    ambos os casos a URL é validada: se o host devolver arquivo vazio, a
+    publicação é considerada falha em vez de gerar link quebrado.
     """
     erros = []
 
@@ -250,6 +337,14 @@ def upload_publico(caminho, slug):
     except Exception as exc:  # noqa: BLE001
         erros.append(f"GitHub: {exc}")
         print(f"⚠️  GitHub indisponível ({exc}) — trying catbox...")
+
+    if not ALLOW_CATBOX:
+        raise SystemExit(
+            "❌ Não foi possível publicar a mídia no GitHub:\n  - "
+            + "\n  - ".join(erros)
+            + "\n\nO fallback catbox.moe fica desligado por padrão (host público "
+            "de terceiros).\nPara liberar: APROVACAO_ALLOW_CATBOX=1"
+        )
 
     try:
         url = upload_catbox(caminho)
@@ -291,9 +386,25 @@ def extrair_legenda_instagram(legenda):
 
 
 def gerar_html_email(dados):
+    """HTML do e-mail de aprovação.
+
+    Tudo que vem do arquivo de estado (título, URLs, legenda, slug) passa por
+    `html.escape`: sem isso, um texto malicioso na legenda/título conseguiria
+    injetar HTML no e-mail de aprovação e alterar as instruções que a
+    proprietária lê antes de aprovar.
+    """
     imagens = dados["imagens"]
     total = len(imagens)
     tipo = dados.get("tipo", "carousel")
+
+    invalidas = [u for u in imagens if not url_midia_valida(u)]
+    if invalidas:
+        raise SystemExit(
+            "❌ URL de mídia fora dos hosts permitidos: "
+            + ", ".join(str(u) for u in invalidas)
+            + "\n   Só são aceitas URLs https de raw.githubusercontent.com "
+            "(ou catbox, se o fallback estiver ligado)."
+        )
 
     blocos = []
     for i, url in enumerate(imagens, start=1):
@@ -301,12 +412,14 @@ def gerar_html_email(dados):
             rotulo = "Post"
         else:
             rotulo = "CTA" if i == total else f"Slide {i}"
+        url_segura = html.escape(url, quote=True)
+        rotulo_seguro = html.escape(rotulo, quote=True)
         blocos.append(
             f'<td width="50%" style="padding:6px;vertical-align:top;">'
             f'<div style="font:600 11px Arial,sans-serif;color:#8A8580;'
-            f'letter-spacing:1.5px;text-transform:uppercase;padding:0 0 6px 2px;">{rotulo}</div>'
-            f'<a href="{url}" style="text-decoration:none;">'
-            f'<img src="{url}" width="260" alt="{rotulo}" '
+            f'letter-spacing:1.5px;text-transform:uppercase;padding:0 0 6px 2px;">{rotulo_seguro}</div>'
+            f'<a href="{url_segura}" style="text-decoration:none;">'
+            f'<img src="{url_segura}" width="260" alt="{rotulo_seguro}" '
             f'style="display:block;width:100%;max-width:260px;border-radius:10px;'
             f'border:1px solid #e6e1d8;"></a></td>'
         )
@@ -315,10 +428,13 @@ def gerar_html_email(dados):
         linhas.append("<tr>" + "".join(blocos[i : i + 2]) + "</tr>")
     galeria = "".join(linhas)
 
-    legenda = extrair_legenda_instagram(dados["legenda"]).replace("<", "&lt;")
+    legenda = html.escape(extrair_legenda_instagram(dados["legenda"]))
     hashtags = len(re.findall(r"#\w+", dados["legenda"]))
     unidade = "post" if tipo == "post" else "slides"
     contagem = f"{total} {unidade}"
+    titulo = html.escape(dados["titulo"])
+    slug = html.escape(dados["slug"])
+    criado_em = html.escape(dados["criado_em"])
 
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -330,7 +446,7 @@ def gerar_html_email(dados):
       Aprovação de conteúdo
     </div>
     <div style="font:700 22px Georgia,'Times New Roman',serif;color:#ffffff;line-height:1.3;">
-      {dados['titulo']}
+      {titulo}
     </div>
     <div style="font:400 12px Arial,sans-serif;color:rgba(255,255,255,0.65);padding-top:10px;">
       {HANDLE} &nbsp;·&nbsp; {contagem} &nbsp;·&nbsp; {len(dados['legenda'])} caracteres de legenda &nbsp;·&nbsp; {hashtags} hashtags
@@ -384,8 +500,8 @@ def gerar_html_email(dados):
 
   <div style="background:#faf9f7;border-top:1px solid #e6e1d8;padding:18px 32px;">
     <div style="font:400 11px Arial,sans-serif;color:#8A8580;line-height:1.7;">
-      Referência interna: <code style="color:#4a4a44;">{dados['slug']}</code><br>
-      Preparado em {dados['criado_em']}
+      Referência interna: <code style="color:#4a4a44;">{slug}</code><br>
+      Preparado em {criado_em}
     </div>
   </div>
 
@@ -397,8 +513,31 @@ def gerar_html_email(dados):
 # ----------------------------------------------------------------- comandos
 
 
+def _destino_de_aprovacao(args, dados):
+    """E-mail que recebe a aprovação.
+
+    Só a conta da proprietária pode receber e responder a aprovação: se o
+    e-mail de aprovação fosse enviado para um endereço controlado por outra
+    pessoa, essa pessoa aprovaria o post sozinha.
+    """
+    destino = (
+        args.para
+        or (dados.get("email") or {}).get("para")
+        or EMAIL_DESTINO_PADRAO
+    ).strip()
+    if destino.lower() != EMAIL_DONO:
+        raise SystemExit(
+            f"❌ O e-mail de aprovação precisa ir para '{EMAIL_DONO}' "
+            f"(recebido: '{destino}').\n"
+            "   Só a resposta dessa conta vale como aprovação — o vigia "
+            "descarta respostas de outros remetentes.\n"
+            "   Para outro fluxo, ajuste APROVACAO_EMAIL no ambiente."
+        )
+    return destino
+
+
 def cmd_preparar(args):
-    slug = args.slug
+    slug = _exigir_slug(args.slug)
     legenda_path = POSTS_ROOT / slug / "legenda.txt"
     slides_legenda_path = SLIDES_ROOT / slug / "legenda.txt"
 
@@ -416,6 +555,11 @@ def cmd_preparar(args):
     total = len(midia)
 
     dados = carregar(slug) or {}
+
+    # Valida o destino ANTES de qualquer upload: se o e-mail de aprovação for
+    # para um endereço que não é o da proprietária, nada deve ser publicado.
+    destino = _destino_de_aprovacao(args, dados)
+
     dados.update(
         {
             "slug": slug,
@@ -445,7 +589,7 @@ def cmd_preparar(args):
 
     dados["status"] = "pendente"
     dados.setdefault("email", {})
-    dados["email"]["para"] = args.para or dados["email"].get("para") or EMAIL_DESTINO_PADRAO
+    dados["email"]["para"] = destino
     dados["email"]["assunto"] = f"[Aprovação] {dados['titulo']}"
     registrar_evento(dados, "preparado", f"{total} {tipo}(s) enviados para hospedagem")
 
@@ -482,9 +626,10 @@ def cmd_listar(args):
 
 
 def cmd_ver(args):
-    dados = carregar(args.slug)
+    slug = _exigir_slug(args.slug)
+    dados = carregar(slug)
     if not dados:
-        raise SystemExit(f"❌ Nenhuma aprovação para '{args.slug}'")
+        raise SystemExit(f"❌ Nenhuma aprovação para '{slug}'")
     resumo = {k: v for k, v in dados.items() if k != "legenda"}
     print(json.dumps(resumo, ensure_ascii=False, indent=2))
     print(f"\n--- legenda ({len(dados['legenda'])} caracteres) ---")
@@ -492,32 +637,49 @@ def cmd_ver(args):
 
 
 def cmd_marcar(args):
-    dados = carregar(args.slug)
+    slug = _exigir_slug(args.slug)
+    dados = carregar(slug)
     if not dados:
-        raise SystemExit(f"❌ Nenhuma aprovação para '{args.slug}'")
+        raise SystemExit(f"❌ Nenhuma aprovação para '{slug}'")
     if args.status not in STATUS_VALIDOS:
         raise SystemExit(f"❌ Status inválido. Use: {', '.join(STATUS_VALIDOS)}")
 
     anterior = dados["status"]
     dados["status"] = args.status
+    dados.setdefault("email", {})
     if args.message_id:
-        dados["email"]["message_id"] = args.message_id
+        if not RE_ID_GMAIL.match(args.message_id.strip().lower()):
+            raise SystemExit(
+                f"❌ message_id inválido: '{args.message_id}' "
+                "(esperado ID hexadecimal do Gmail)."
+            )
+        dados["email"]["message_id"] = args.message_id.strip().lower()
     if args.thread_id:
-        dados["email"]["thread_id"] = args.thread_id
+        if not RE_ID_GMAIL.match(args.thread_id.strip().lower()):
+            raise SystemExit(
+                f"❌ thread_id inválido: '{args.thread_id}' "
+                "(esperado ID hexadecimal do Gmail)."
+            )
+        dados["email"]["thread_id"] = args.thread_id.strip().lower()
     if args.status == "aprovado":
         dados["aprovado_em"] = agora()
     registrar_evento(dados, "status", f"{anterior} → {args.status} {args.detalhe or ''}".strip())
     salvar(dados)
-    print(f"✅ {args.slug}: {anterior} → {args.status}")
+    print(f"✅ {slug}: {anterior} → {args.status}")
 
 
 def cmd_publicar(args):
-    dados = carregar(args.slug)
+    slug = _exigir_slug(args.slug)
+    dados = carregar(slug)
     if not dados:
-        raise SystemExit(f"❌ Nenhuma aprovação para '{args.slug}'")
+        raise SystemExit(f"❌ Nenhuma aprovação para '{slug}'")
     if dados["status"] not in ("aprovado", "publicado"):
         raise SystemExit(
             f"❌ Status atual é '{dados['status']}'. Só publica depois de 'aprovado'."
+        )
+    if args.permalink and not args.permalink.startswith("https://"):
+        raise SystemExit(
+            f"❌ Permalink inválido: '{args.permalink}' (deve começar com https://)."
         )
     dados["status"] = "publicado"
     dados["publicacao"] = {
@@ -527,7 +689,7 @@ def cmd_publicar(args):
     }
     registrar_evento(dados, "publicado", args.permalink or "")
     salvar(dados)
-    print(f"✅ {args.slug} publicado: {args.permalink}")
+    print(f"✅ {slug} publicado: {args.permalink}")
 
 
 def main():

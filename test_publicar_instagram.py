@@ -31,7 +31,11 @@ def dados_base(**extras):
         "titulo": "Título do post",
         "status": "aprovado",
         "legenda": LEGENDA,
-        "imagens": [f"https://exemplo.com/slide_{i}.png" for i in range(1, 4)],
+        "imagens": [
+            f"https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/"
+            f"master/publicado/teste/slide_{i}.png"
+            for i in range(1, 4)
+        ],
     }
     dados.update(extras)
     return dados
@@ -113,6 +117,28 @@ class LegendaTest(unittest.TestCase):
         with self.assertRaises(publicar_instagram.ErroPublicacao):
             publicar_instagram.legenda_do_post(dados)
 
+    def test_recusa_url_de_host_nao_permitido(self):
+        # Imagem de host desconhecido (rastreador/host de terceiros) não pode
+        # virar o que é publicado.
+        dados = dados_base(
+            imagens=["https://rastreador.exemplo.com/slide_1.png"]
+        )
+        duble = Duble()
+        with mock.patch.object(publicar_instagram, "_graph", duble):
+            with self.assertRaises(publicar_instagram.ErroPublicacao):
+                publicar_instagram.publicar(dados)
+        self.assertEqual(duble.chamadas, [])
+
+    def test_recusa_url_http(self):
+        dados = dados_base(
+            imagens=["http://raw.githubusercontent.com/x/y/slide_1.png"]
+        )
+        duble = Duble()
+        with mock.patch.object(publicar_instagram, "_graph", duble):
+            with self.assertRaises(publicar_instagram.ErroPublicacao):
+                publicar_instagram.publicar(dados)
+        self.assertEqual(duble.chamadas, [])
+
 
 class PublicarTest(unittest.TestCase):
     def test_carrossel_cria_filhos_em_ordem_e_publica(self):
@@ -161,7 +187,13 @@ class PublicarTest(unittest.TestCase):
 
     def test_post_unico_usa_caption_no_container(self):
         duble = Duble()
-        dados = dados_base(tipo="post", imagens=["https://exemplo.com/post.png"])
+        dados = dados_base(
+            tipo="post",
+            imagens=[
+                "https://raw.githubusercontent.com/tarcisiotna/instagram_veronica/"
+                "master/publicado/teste/post.png"
+            ],
+        )
         with mock.patch.object(publicar_instagram, "_graph", duble):
             resultado = publicar_instagram.publicar(dados)
 

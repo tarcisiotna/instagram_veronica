@@ -16,7 +16,7 @@ Ferramenta para gerar carrosséis do Instagram e controlar assuntos já postados
 ## Configuração
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/engsw-gcm-master/instagram_veronica.git
+   git clone https://github.com/tarcisiotna/instagram_veronica.git
    cd instagram_veronica
    ```
 2. Configure o ambiente Python:
@@ -27,6 +27,12 @@ Ferramenta para gerar carrosséis do Instagram e controlar assuntos já postados
 3. Configure as dependências Node.js (para exportação):
    ```bash
    npm install
+   ```
+4. Configure as credenciais (veja [SECURITY.md](SECURITY.md)):
+   ```bash
+   cp .env.example .env
+   chmod 600 .env
+   # preencha COMPOSIO_MCP_KEY no .env (ou configure o MCP do OpenCode)
    ```
 
 ## Uso
@@ -82,7 +88,28 @@ Após postar um assunto no Instagram, registre-o executando `python topic_manage
 - `export_veronica_node.js`: Exporta slides para PNG (Node.js + Playwright)
 - `export_slides.py`: Exporta slides para PNG (Python + Playwright)
 - `verificar_carrossel.py`: Verifica regras do carrossel antes de exportar
-- `.gitignore`: Exclui arquivos grandes (HTML, slides, imagens) do repositório
+- `aprovacao.py`: Fluxo de aprovação por e-mail antes de publicar
+- `vigia_aprovacao.py`: Lê a resposta do e-mail e publica com aprovação
+- `publicar_instagram.py`: Publicação via Graph API do Instagram
+- `composio_mcp.py`: Acesso ao MCP do Composio (Gmail e Instagram)
+- `.gitignore`: Exclui arquivos grandes (HTML, slides, imagens) e segredos
+
+## Aprovação antes de publicar
+
+Nenhum post vai ao Instagram sem aprovação por e-mail. O fluxo completo
+(roteiro, fontes, e-mail de aprovação, vigia automático e publicação) está
+em [FLUXO_APROVACAO.md](FLUXO_APROVACAO.md) e [REGRAS_CARROSSEL.md](REGRAS_CARROSSEL.md).
+
+```bash
+python3 aprovacao.py preparar <tema>   # sobe a mídia e gera o e-mail
+python3 vigia_aprovacao.py              # lê a resposta e publica se aprovado
+```
+
+## Segurança
+
+O repositório é público: **nenhuma credencial pode ser versionada**. As regras
+de segredo, permissões de arquivo, aprovação por e-mail e mídia hospedada
+estão em [SECURITY.md](SECURITY.md).
 
 ## Repositório
-https://github.com/engsw-gcm-master/instagram_veronica
+https://github.com/tarcisiotna/instagram_veronica

@@ -8,7 +8,6 @@ __pycache__/
 
 # Node.js
 node_modules/
-package-lock.json
 
 # Slides/HTML exports - apenas código, não imágenes
 slides/*/
@@ -31,8 +30,28 @@ Documento/*
 
 # Ambiente
 .env
+.env.*
+!.env.example
 .opencode/
 
+# Segredos e credenciais — nunca versionar em repositório público
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+credentials.json
+credentials*.json
+.npmrc
+.netrc
+id_rsa*
+id_ed25519*
+*.gpg
+*.asc
+
+# Aprovação: estado interno (IDs de e-mail, histórico, mídia em revisão)
+# fica só na máquina — não precisa estar no repositório público.
+aprovacoes/*.json
 # Aprovação: HTML do e-mail é gerado pelo aprovacao.py
 aprovacoes/*-email.html
 # Log do vigia de aprovação (gerado a cada verificação)

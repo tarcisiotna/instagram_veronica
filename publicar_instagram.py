@@ -33,7 +33,12 @@ import sys
 import time
 from datetime import datetime, timedelta
 
-from aprovacao import agora, carregar, extrair_legenda_instagram
+from aprovacao import (
+    agora,
+    carregar,
+    extrair_legenda_instagram,
+    url_midia_valida,
+)
 from composio_mcp import ErroFerramenta, chamar_mcp
 
 IG_USER_ID = os.environ.get("IG_USER_ID", "28882452441414713").strip()
@@ -289,6 +294,16 @@ def publicar(dados, ao_progredir=None):
 
     imagens = [url for url in (dados.get("imagens") or []) if url]
     tipo = dados.get("tipo") or ("carousel" if len(imagens) > 1 else "post")
+
+    # Só URLs https dos hosts de mídia do projeto: evita publicar uma imagem
+    # que não é a que foi aprovada (ou que aponta para um host de terceiros).
+    invalidas = [url for url in imagens if not url_midia_valida(url)]
+    if invalidas:
+        raise ErroPublicacao(
+            "URL de mídia fora dos hosts permitidos: "
+            + ", ".join(invalidas[:3])
+        )
+
     if tipo == "post":
         if len(imagens) != 1:
             raise ErroPublicacao(f"post único precisa de 1 imagem, tem {len(imagens)}")

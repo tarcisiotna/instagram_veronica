@@ -42,9 +42,13 @@ O script:
 
 - publica os arquivos de mídia em `publicado/<tema>/` e versiona no GitHub
   (repo público `tarcisiotna/instagram_veronica`), virando URL `raw.githubusercontent.com`
+- confere se o remote `origin` é o esperado (`GITHUB_REMOTE_ESPERADO`) antes
+  de escrever — evita publicar a mídia em um repositório não revisado
 - valida que a URL devolve imagem (HTTP 200 e tamanho > 0) antes de seguir
-- usa o catbox.moe apenas como fallback (hoje está com uploads pausados)
-- cria `aprovacoes/<tema>.json` com status `pendente`
+- usa o catbox.moe apenas como fallback e **só com `APROVACAO_ALLOW_CATBOX=1`**
+  (é um host público de terceiros, fora do controle do projeto)
+- cria `aprovacoes/<tema>.json` com status `pendente` (arquivo local, fora do
+  repositório público)
 - gera `aprovacoes/<tema>-email.html` com os slides, a legenda e as instruções
 
 Nada é enviado ao Instagram.
@@ -54,11 +58,16 @@ Nada é enviado ao Instagram.
 Enviar `aprovacoes/<tema>-email.html` via `GMAIL_SEND_EMAIL` com `is_html=True`
 para `veronicabomfim.nutri@gmail.com`, assunto `[Aprovação] <título>`.
 
-Depois de enviar, registrar o thread:
+Depois de enviar, registrar o thread (e o id da mensagem enviada — ajuda o
+vigia a localizar exatamente onde começa a resposta):
 
 ```bash
-python3 aprovacao.py marcar <tema> pendente --thread-id <threadId>
+python3 aprovacao.py marcar <tema> pendente --thread-id <threadId> --message-id <messageId>
 ```
+
+> O e-mail de aprovação só pode ser enviado para `veronicabomfim.nutri@gmail.com`
+> (`APROVACAO_EMAIL`). Outro destino é recusado antes de qualquer upload — se
+> outra pessoa controlasse o e-mail receptor, aprovaria o post sozinha.
 
 ### 4. Ler a resposta
 
@@ -90,6 +99,25 @@ Ele lê o thread pelo MCP do Composio, ignora rascunhos e a citação do e-mail
 original, e só aceita o veredito quando **APROVAR** ou **REJEITAR** abre a
 resposta (ou alguma linha dela, em resposta curta). Conversa solta não muda o
 status. Ao encontrar o veredito, chama `aprovacao.py marcar`.
+
+**Regras de segurança do veredito** (todas falham para o lado seguro — o post
+fica `pendente`, nunca publicado):
+
+- **Remetente**: só `veronicabomfim.nutri@gmail.com` aprova. Resposta de
+  qualquer outra pessoa no thread (inclusive de alguém para quem o e-mail foi
+  reencaminhado) é ignorada.
+- **Posição**: só mensagens **depois** do e-mail de aprovação contam. Se o
+  e-mail enviado não for identificado no thread, o vigia não varre as demais
+  mensagens e o post continua pendente.
+- **Clareza**: "APROVAR" precisa ser inequívoco. Dúvida, negação ou
+  adiamento ("APROVAR depois", "APROVAR?", "não APROVAR") **não** aprovam.
+
+Se o proxy não entregar o cabeçalho `From` (raro), há um escape hatch para
+diagnóstico — ele registra um aviso no log e deve ser usado com cuidado:
+
+```bash
+python3 vigia_aprovacao.py --once --aceitar-qualquer-remetente
+```
 
 - **APROVAR** → marca `aprovado` e **publica no Instagram na mesma passada**
   (`publicar_instagram.py`): cria os containers filhos, o container pai com a
@@ -183,9 +211,13 @@ python3 topic_manager.py add "<tema>"
 - As imagens ficam no repositório GitHub público (`publicado/<tema>/`), servidas
   por `raw.githubusercontent.com` — links permanentes, sem prazo. O repositório
   precisa estar **público** para o Gmail e o Instagram baixarem as imagens.
+  Isso significa que **mídia não aprovada (ou de post rejeitado) também fica
+  pública**; remova os arquivos de `publicado/<tema>/` se o post for
+  descartado.
 - Se o link cair ou a imagem mudar, rodar `python3 aprovacao.py preparar <tema> --reupload`.
 - O `aprovacoes/*.json` guarda a legenda inteira, então o post pode ser
-  publicado semanas depois sem depender dos arquivos originais.
+  publicado semanas depois sem depender dos arquivos originais. Esse arquivo
+  é **local** (não é versionado) porque traz IDs de e-mail e histórico interno.
 - Reenviar o e-mail depois de um `rejeitado` é só corrigir os slides, rodar
   `preparar --reupload` e enviar de novo.
 - Se o vigia marcar `publicacao.desistiu`, confira o erro em

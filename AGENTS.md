@@ -4,6 +4,7 @@ Leia antes de qualquer tarefa:
 
 - `REGRAS_CARROSSEL.md` — regras que não podem ser violadas (design, export, legenda, CTA, barra de progresso)
 - `FLUXO_APROVACAO.md` — fluxo de aprovação por e-mail
+- `SECURITY.md` — segredos, permissões e regras de aprovação (repositório público)
 - `.opencode/skills/instagram-carousel/BRAND_VERONICA.md` — identidade da marca
 
 ## Fluxo obrigatório de cada carrossel
@@ -26,6 +27,10 @@ Leia antes de qualquer tarefa:
 - Publicar pela Graph API via `COMPOSIO_PROXY_EXECUTE` — as tools prontas de
   carrossel do Composio falham com *"Invalid parameter in carousel request"*.
 - Legenda longa vai no corpo JSON do POST, nunca na query string do proxy.
+- **Nunca versionar segredo** (chave do Composio, senha do Gmail): o repositório
+  é público. Segredo fica no `.env` (ignorado) com `chmod 600` — ver `SECURITY.md`.
+- **Nunca enviar o e-mail de aprovação para outro endereço** — só
+  `veronicabomfim.nutri@gmail.com` pode aprovar.
 
 ## Conta
 
